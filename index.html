@@ -27,12 +27,6 @@
       </video>
     </div>
 
-    <!-- Import fichier -->
-    <div class="bg-gray-50 p-4 rounded-xl shadow mb-6">
-      <label class="block mb-2 font-semibold">Importer votre base produits (.xlsx) :</label>
-      <input type="file" id="file-input" accept=".xlsx" class="border p-2 w-full rounded">
-    </div>
-
     <!-- Interface de configuration -->
     <div id="config" class="hidden">
       <div class="flex flex-wrap gap-6 items-center mb-6">
@@ -69,38 +63,28 @@ let produits = [];
 let regime = "loc36";
 let remiseInstall = 0;
 
-document.getElementById("file-input").addEventListener("change", function (e) {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
-
-    produits = rows.map(r => ({
-      nom: r["Produit"] || r["produit"] || "",
-      cat: r["Catégorie"] || r["categorie"] || "Autres",
-      achat: +r["Achat"] || +r["achat"] || 0,
-      at: +r["AT"] || +r["at"] || 0,
-      loc36: +r["Loc36"] || +r["loc36"] || 0,
-      loc60: +r["Loc60"] || +r["loc60"] || 0,
-      install: +r["Install"] || +r["install"] || 0
-    }));
-
-    console.log("Produits chargés:", produits);
-    document.getElementById("config").classList.remove("hidden");
-    renderGroupedTable();
-    update();
-  };
-  reader.readAsArrayBuffer(file);
-});
+function parseExcel(buffer) {
+  const workbook = XLSX.read(buffer, { type: "array" });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet);
+  produits = rows.map(r => ({
+    nom: r["Produit"] || r["produit"] || "",
+    cat: r["Catégorie"] || r["categorie"] || "Autres",
+    achat: +r["Achat"] || +r["achat"] || 0,
+    at: +r["AT"] || +r["at"] || 0,
+    loc36: +r["Loc36"] || +r["loc36"] || 0,
+    loc60: +r["Loc60"] || +r["loc60"] || 0,
+    install: +r["Install"] || +r["install"] || 0
+  }));
+  document.getElementById("config").classList.remove("hidden");
+  renderGroupedTable();
+  update();
+}
 
 function renderGroupedTable() {
   const container = document.getElementById("product-sections");
   container.innerHTML = "";
   const categories = [...new Set(produits.map(p => p.cat))];
-
   categories.forEach(cat => {
     const section = document.createElement("div");
     section.innerHTML = `<h2 class='text-xl font-semibold mt-6 mb-2'>${cat}</h2><table class='w-full table-auto border mb-4'>
@@ -186,6 +170,13 @@ function filtrerResume() {
     if (row) row.style.display = qte > 0 ? "table-row" : "none";
   });
 }
+
+window.onload = () => {
+  fetch("https://tourmaline-puppy-f842d6.netlify.app/CallConnect_DB_CLEAN_FINAL.xlsx")
+    .then(res => res.arrayBuffer())
+    .then(data => parseExcel(data))
+    .catch(err => alert("Erreur lors du chargement de la base de données : " + err.message));
+};
 </script>
 </body>
 </html>
