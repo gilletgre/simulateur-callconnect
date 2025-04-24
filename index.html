@@ -172,7 +172,7 @@ function filtrerResume() {
 }
 
 window.onload = () => {
-  fetch("https://tourmaline-puppy-f842d6.netlify.app/CallConnect_DB_CLEAN_FINAL.xlsx")
+  fetch("https://simulateur-callconnect.netlify.app/CallConnect_DB_CLEAN_FINAL.xlsx")
     .then(res => res.arrayBuffer())
     .then(data => parseExcel(data))
     .catch(err => alert("Erreur lors du chargement de la base de données : " + err.message));
