@@ -188,6 +188,12 @@ const hiddenPatterns = [
   "unlimited calls national",
   "closed user group voip call connect"
 ];
+const alwaysMonthlyCategories = new Set([
+  "Licences utilisateurs",
+  "Voicemail 10 individual Licences",
+  "Voicemail for IVR/Group Licences",
+  "CTI"
+]);
 const standardLicenceName = "standard license call connect";
 const softphoneLicenceName = "softphone license call connect";
 const messagingLicenceName = "messaging license call connect";
@@ -351,15 +357,14 @@ function computePrice(prod) {
   const achatAT = (prod.Achat || 0) + (prod.AT || 0);
   const achatOnly = isAchatOnly(prod);
   const locEligible = isLocEligible(prod);
+  const monthlyOnly = alwaysMonthlyCategories.has(prod.Categorie);
 
   if (regime === "achat" || regime === "achat_at") {
-    base = achatAT;
-    // Si aucun prix achat mais qu'on a un tarif loc et que le produit n'est pas achat-only, on retombe sur le loc
-    if (base === 0 && !achatOnly && locEligible) {
+    if (monthlyOnly && locEligible) {
       base = prod.Loc36 || prod.Loc60 || achatAT;
+    } else {
+      base = achatAT || prod.Loc36 || prod.Loc60 || achatAT;
     }
-    // Dernier recours : au moins achat+AT
-    if (base === 0) base = achatAT;
   } else if (regime === "loc36") {
     base = prod.Loc36 && prod.Loc36 > 0 ? prod.Loc36 : achatAT;
   } else {
@@ -370,7 +375,7 @@ function computePrice(prod) {
   if (isPoste(prod)) discount = Math.max(discount, remisePostes);
   if (isStandardLicence(prod)) discount = Math.max(discount, remiseLicences);
   const price = base * (1 - discount / 100);
-  return { price, base, discount, achatOnly, locEligible };
+  return { price, base, discount, achatOnly, locEligible, monthlyOnly };
 }
 
 function renderGroupedTable() {
@@ -485,12 +490,16 @@ function updateTotals() {
     if (!qtyInput || !row) return;
     const qty = parseInt(qtyInput.value || "0");
     quantities[prod.id] = qty;
-    const { price, base, discount, achatOnly, locEligible } = computePrice(prod);
+    const { price, base, discount, achatOnly, locEligible, monthlyOnly } = computePrice(prod);
     let totalLine = price * qty;
     let installLine = (prod.Install || 0) * qty;
     if (regime === "achat" || regime === "achat_at") {
-      totalLine = 0;
-      installLine += price * qty;
+      if (monthlyOnly && locEligible) {
+        installLine = 0;
+      } else {
+        totalLine = 0;
+        installLine += price * qty;
+      }
     } else if (regime === "loc36" || regime === "loc60") {
       if (achatOnly || !locEligible) {
         // Achat-only en loc : rien en mensuel, tout en frais uniques
