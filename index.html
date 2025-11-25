@@ -254,7 +254,13 @@ function slugify(text) {
 }
 
 function getFamily(prod) {
-  return familyMap[prod.Categorie] || "Autres";
+  const mapped = familyMap[prod.Categorie];
+  if (mapped) return mapped;
+  const name = prod.Produit.toLowerCase();
+  if (name.includes("dect")) return "DECT & Accessoires";
+  if (name.includes("phone") || name.includes("t4") || name.includes("t5")) return "Endpoints";
+  if (name.includes("headset") || name.includes("casque") || name.includes("poly") || name.includes("plantronics")) return "Audio & Casques";
+  return "Autres";
 }
 
 function categoryIcon(cat) {
