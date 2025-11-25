@@ -35,6 +35,18 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-4 pb-12">
+    <section class="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-slate-900/60 mb-8">
+      <video autoplay loop muted playsinline class="w-full h-72 object-cover opacity-70">
+        <source src="https://www.webex.com/content/dam/wbx/us/images/rebrand/hero-videos/webex_device_landing_hero.mp4" type="video/mp4">
+      </video>
+      <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/70 to-slate-900/30"></div>
+      <div class="absolute inset-0 flex flex-col justify-center px-8 py-6 space-y-3">
+        <p class="tag bg-slate-800 text-sky-200 border border-slate-700 w-fit">Vue simulateur</p>
+        <h2 class="text-2xl font-bold text-white">Configurez, appliquez les remises, exportez</h2>
+        <p class="text-slate-300 max-w-3xl">Base prix synchronisée avec PBX + Excel, régimes achat / achat + AT / location, filtres de visibilité et ventilation des remises.</p>
+      </div>
+    </section>
+
     <section id="config" class="hidden -mt-10 relative z-10">
       <div class="rounded-2xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-slate-900/60 p-6 space-y-6">
         <div class="grid lg:grid-cols-5 gap-4 items-center">
@@ -111,6 +123,7 @@ let remiseLicences = 0;
 let onlySelected = false;
 let hideEmpty = false;
 let searchTerm = "";
+const collapsedCategories = new Set();
 
 const deviceCategories = new Set([
   "Devices",
@@ -130,6 +143,23 @@ function isStandardLicence(prod) {
 
 function isPoste(prod) {
   return deviceCategories.has(prod.Categorie);
+}
+
+function slugify(text) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function computeSubcategory(prod) {
+  if (prod.Categorie !== "Autres") return prod.Categorie;
+  const name = prod.Produit.toLowerCase();
+  if (name.includes("license call connect pack")) return "Packs licences";
+  if (name.includes("license call connect")) return "Licences et options";
+  if (name.includes("plantronics") || name.includes("poly") || name.includes("headset")) return "Casques / audio";
+  if (name.includes("switch") || name.includes("huawei")) return "Réseau / switch";
+  if (name.includes("doorphone") || name.includes("portier")) return "Parlophones / portiers";
+  if (name.includes("internet") || name.includes("explore") || name.includes("fiber")) return "Connectivité";
+  if (name.includes("cabling") || name.includes("patch") || name.includes("vertical cabling")) return "Câblage / câblerie";
+  return "Divers Autres";
 }
 
 function computePrice(prod) {
@@ -160,65 +190,115 @@ function renderGroupedTable() {
   categories.forEach(cat => {
     const section = document.createElement("section");
     section.className = "rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-lg shadow-slate-900/50";
+    section.dataset.cat = cat;
     section.innerHTML = `
       <div class="flex items-center justify-between px-4 py-3 bg-slate-900/80 border-b border-slate-800">
         <div>
           <p class="text-xs uppercase tracking-wide text-slate-500">Catégorie</p>
           <h2 class="text-lg font-semibold text-white">${cat}</h2>
         </div>
+        <button class="toggle-cat text-slate-300 hover:text-white text-xl" aria-label="Basculer catégorie">${collapsedCategories.has(cat) ? "▶" : "▼"}</button>
       </div>
-      <table class="w-full text-sm">
-        <thead class="bg-slate-900/70 text-slate-300">
-          <tr>
-            <th class="text-left px-4 py-2">Produit</th>
-            <th class="text-right px-4 py-2">Prix (${regime})</th>
-            <th class="text-right px-4 py-2">Qté</th>
-            <th class="text-right px-4 py-2">Total mensuel</th>
-            <th class="text-right px-4 py-2">Installation</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-${cat.replace(/\\s+/g,'-')}" class="divide-y divide-slate-800"></tbody>
-      </table>
+      <div class="cat-body ${collapsedCategories.has(cat) ? "hidden" : ""}">
+        ${
+          cat === "Autres"
+            ? renderAutres(produits.filter(p => p.Categorie === cat))
+            : renderTable(cat, produits.filter(p => p.Categorie === cat))
+        }
+      </div>
     `;
     container.appendChild(section);
 
-    const tbody = section.querySelector("tbody");
-    produits
-      .filter(p => p.Categorie === cat)
-      .forEach(prod => {
-        const qty = quantities[prod.id] || 0;
-        const row = document.createElement("tr");
-        row.id = `row-${prod.id}`;
-        row.className = qty > 0 ? "bg-slate-900/50" : "";
-        row.innerHTML = `
-          <td class="px-4 py-2 align-top">
-            <div class="font-medium text-white">${prod.Produit}</div>
-            <div class="text-xs text-slate-500 flex gap-2 mt-1">
-              ${isPoste(prod) ? '<span class="tag bg-slate-800 text-sky-200 border border-slate-700">Poste</span>' : ""}
-              ${isStandardLicence(prod) ? '<span class="tag bg-slate-800 text-amber-200 border border-slate-700">Licence standard</span>' : ""}
-            </div>
-          </td>
-          <td class="px-4 py-2 text-right">
-            <div id="prix-${prod.id}" class="font-semibold text-slate-100">-</div>
-            <div id="discount-${prod.id}" class="text-xs text-emerald-400"></div>
-          </td>
-          <td class="px-4 py-2 text-right">
-            <input type="number" min="0" value="${qty}" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
-          </td>
-          <td class="px-4 py-2 text-right">
-            <div id="total-${prod.id}" class="font-semibold text-slate-100">-</div>
-          </td>
-          <td class="px-4 py-2 text-right">
-            <div id="install-${prod.id}" class="font-semibold text-slate-100">-</div>
-          </td>
-        `;
-        tbody.appendChild(row);
+    section.querySelector(".toggle-cat").addEventListener("click", () => {
+      if (collapsedCategories.has(cat)) {
+        collapsedCategories.delete(cat);
+      } else {
+        collapsedCategories.add(cat);
+      }
+      section.querySelector(".cat-body").classList.toggle("hidden");
+      section.querySelector(".toggle-cat").innerText = collapsedCategories.has(cat) ? "▶" : "▼";
+    });
+  });
+  bindQuantityInputs();
+}
 
-        document.getElementById(`qty-${prod.id}`).addEventListener("input", (e) => {
-          quantities[prod.id] = parseInt(e.target.value || "0");
-          updateTotals();
-        });
-      });
+function renderTable(cat, list, mainCat = cat) {
+  const slug = slugify(cat);
+  const rows = list.map(prod => {
+    const qty = quantities[prod.id] || 0;
+    return `
+      <tr id="row-${prod.id}" data-maincat="${mainCat}" data-subcat="${cat}" class="${qty > 0 ? "bg-slate-900/50" : ""}">
+        <td class="px-4 py-2 align-top">
+          <div class="font-medium text-white">${prod.Produit}</div>
+          <div class="text-xs text-slate-500 flex gap-2 mt-1">
+            ${isPoste(prod) ? '<span class="tag bg-slate-800 text-sky-200 border border-slate-700">Poste</span>' : ""}
+            ${isStandardLicence(prod) ? '<span class="tag bg-slate-800 text-amber-200 border border-slate-700">Licence standard</span>' : ""}
+          </div>
+        </td>
+        <td class="px-4 py-2 text-right">
+          <div id="prix-${prod.id}" class="font-semibold text-slate-100">-</div>
+          <div id="discount-${prod.id}" class="text-xs text-emerald-400"></div>
+        </td>
+        <td class="px-4 py-2 text-right">
+          <input type="number" min="0" value="${qty}" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
+        </td>
+        <td class="px-4 py-2 text-right">
+          <div id="total-${prod.id}" class="font-semibold text-slate-100">-</div>
+        </td>
+        <td class="px-4 py-2 text-right">
+          <div id="install-${prod.id}" class="font-semibold text-slate-100">-</div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  // return full table markup
+  const markup = `
+    <table class="w-full text-sm">
+      <thead class="bg-slate-900/70 text-slate-300">
+        <tr>
+          <th class="text-left px-4 py-2">Produit</th>
+          <th class="text-right px-4 py-2">Prix (${regime})</th>
+          <th class="text-right px-4 py-2">Qté</th>
+          <th class="text-right px-4 py-2">Total mensuel</th>
+          <th class="text-right px-4 py-2">Installation</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-${slug}" class="divide-y divide-slate-800">
+        ${rows}
+      </tbody>
+    </table>
+  `;
+  return markup;
+}
+
+function renderAutres(list) {
+  const grouped = {};
+  list.forEach(prod => {
+    const sub = computeSubcategory(prod);
+    grouped[sub] = grouped[sub] || [];
+    grouped[sub].push(prod);
+  });
+  return Object.keys(grouped).sort().map(sub => {
+    return `
+      <div class="border-t border-slate-800">
+        <div class="px-4 py-3 bg-slate-900/70">
+          <p class="text-xs uppercase tracking-wide text-slate-500">Sous-catégorie</p>
+          <h3 class="text-md font-semibold text-white">${sub}</h3>
+        </div>
+        ${renderTable(sub, grouped[sub], "Autres")}
+      </div>
+    `;
+  }).join("");
+}
+
+function bindQuantityInputs() {
+  document.querySelectorAll("input[id^='qty-']").forEach(input => {
+    input.addEventListener("input", (e) => {
+      const id = e.target.id.replace("qty-", "");
+      quantities[id] = parseInt(e.target.value || "0");
+      updateTotals();
+    });
   });
 }
 
@@ -229,6 +309,7 @@ function updateTotals() {
   let totalRemises = 0;
   let lignesActives = 0;
   let lignesMasquees = 0;
+  const visibleByCat = {};
 
   produits.forEach(prod => {
     const qtyInput = document.getElementById(`qty-${prod.id}`);
@@ -256,6 +337,19 @@ function updateTotals() {
     if (!visible) lignesMasquees += 1;
     row.style.display = visible ? "" : "none";
     row.classList.toggle("opacity-50", qty === 0 || price === 0);
+
+    if (visible) {
+      const main = row.dataset.maincat || prod.Categorie;
+      visibleByCat[main] = (visibleByCat[main] || 0) + 1;
+    }
+  });
+
+  document.querySelectorAll("[data-cat]").forEach(section => {
+    const cat = section.dataset.cat;
+    const body = section.querySelector(".cat-body");
+    if (!body) return;
+    const hasVisible = visibleByCat[cat] > 0 || (!onlySelected && !hideEmpty);
+    section.style.display = hasVisible ? "" : "none";
   });
 
   if (regime === "loc36" || regime === "loc60") {
