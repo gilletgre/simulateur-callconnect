@@ -168,6 +168,10 @@ function isPoste(prod) {
   return deviceCategories.has(prod.Categorie);
 }
 
+function isAchatOnly(prod) {
+  return achatOnlyCategories.has(prod.Categorie) || ((prod.Loc36 || 0) === 0 && (prod.Loc60 || 0) === 0);
+}
+
 function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
@@ -215,7 +219,7 @@ function computeSubcategory(prod) {
 function computePrice(prod) {
   let base = 0;
   const achatAT = (prod.Achat || 0) + (prod.AT || 0);
-  const achatOnly = achatOnlyCategories.has(prod.Categorie);
+  const achatOnly = isAchatOnly(prod);
 
   if (achatOnly || regime === "achat" || regime === "achat_at") {
     base = achatAT || prod.Loc36 || prod.Loc60 || prod.Achat || prod.AT;
@@ -291,7 +295,7 @@ function renderTable(cat, list, mainCat = cat) {
   const slug = slugify(cat);
   const rows = list.map(prod => {
     const qty = quantities[prod.id] || 0;
-    const achatOnly = achatOnlyCategories.has(prod.Categorie);
+    const achatOnly = isAchatOnly(prod);
     const priceLabel = achatOnly ? "Prix (achat)" : `Prix (${regime})`;
     return `
       <tr id="row-${prod.id}" data-maincat="${mainCat}" data-subcat="${cat}" class="${qty > 0 ? "bg-slate-900/50" : ""}">
@@ -325,7 +329,7 @@ function renderTable(cat, list, mainCat = cat) {
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
           <th class="text-left px-4 py-2">Produit</th>
-          <th class="px-4 py-2 col-price">${list.some(p => achatOnlyCategories.has(p.Categorie)) ? "Prix (achat)" : `Prix (${regime})`}</th>
+          <th class="px-4 py-2 col-price">${list.some(p => isAchatOnly(p)) ? "Prix (achat)" : `Prix (${regime})`}</th>
           <th class="px-4 py-2 col-qte">Qté</th>
           <th class="px-4 py-2 col-total">Total mensuel</th>
           <th class="px-4 py-2 col-install">Installation</th>
