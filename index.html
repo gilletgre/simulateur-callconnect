@@ -34,8 +34,8 @@
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 pb-12">
-    <section class="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-slate-900/60 mb-8">
+  <main class="max-w-7xl mx-auto px-4 pb-12 space-y-8">
+    <section class="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-slate-900/60">
       <video autoplay loop muted playsinline class="w-full h-72 object-cover opacity-70">
         <source src="https://www.webex.com/content/dam/wbx/us/images/rebrand/hero-videos/webex_device_landing_hero.mp4" type="video/mp4">
       </video>
@@ -47,70 +47,80 @@
       </div>
     </section>
 
-    <section id="config" class="hidden -mt-10 relative z-10">
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-slate-900/60 p-6 space-y-6">
-        <div class="grid lg:grid-cols-5 gap-4 items-center">
-          <div class="lg:col-span-2 space-y-2">
-            <p class="text-sm text-slate-400">Régime</p>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button class="regime-btn" data-regime="achat">Achat</button>
-              <button class="regime-btn" data-regime="achat_at">Achat + AT</button>
-              <button class="regime-btn" data-regime="loc36">Location 36 mois</button>
-              <button class="regime-btn" data-regime="loc60">Location 60 mois</button>
+    <section id="config" class="hidden -mt-8 relative z-10">
+      <div class="grid lg:grid-cols-3 gap-6 items-start">
+        <div class="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-slate-900/60 p-6 space-y-6">
+          <div class="flex flex-wrap items-end gap-4">
+            <div class="space-y-2">
+              <p class="text-sm text-slate-400">Régime</p>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button class="regime-btn" data-regime="achat">Achat</button>
+                <button class="regime-btn" data-regime="achat_at">Achat + AT</button>
+                <button class="regime-btn" data-regime="loc36">Location 36 mois</button>
+                <button class="regime-btn" data-regime="loc60">Location 60 mois</button>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-slate-400">Remise postes</label>
+              <input id="remise-postes" type="number" min="0" max="100" class="w-40 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-slate-400">Remise licences standard</label>
+              <input id="remise-licences" type="number" min="0" max="100" class="w-52 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-slate-400">Remise installation</label>
+              <input id="remise-install" type="number" min="0" max="100" class="w-40 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
             </div>
           </div>
-          <div>
-            <label class="text-sm text-slate-400">Remise postes</label>
-            <input id="remise-postes" type="number" min="0" max="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
-          </div>
-          <div>
-            <label class="text-sm text-slate-400">Remise licences standard</label>
-            <input id="remise-licences" type="number" min="0" max="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
-          </div>
-          <div>
-            <label class="text-sm text-slate-400">Remise installation</label>
-            <input id="remise-install" type="number" min="0" max="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
+
+          <div class="flex flex-wrap gap-3 items-center">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-300">
+              <input id="toggle-selected" type="checkbox" class="accent-sky-400"> Afficher uniquement les quantités &gt; 0
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-300">
+              <input id="toggle-hide-empty" type="checkbox" class="accent-sky-400"> Masquer les lignes non chiffrées
+            </label>
+            <div class="ml-auto flex items-center gap-2">
+              <input id="search" type="search" placeholder="Rechercher un produit" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 w-72">
+              <button id="export-offer" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg shadow">Exporter l'offre</button>
+            </div>
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-3 items-center">
-          <label class="inline-flex items-center gap-2 text-sm text-slate-300">
-            <input id="toggle-selected" type="checkbox" class="accent-sky-400"> Afficher uniquement les quantités &gt; 0
-          </label>
-          <label class="inline-flex items-center gap-2 text-sm text-slate-300">
-            <input id="toggle-hide-empty" type="checkbox" class="accent-sky-400"> Masquer les lignes non chiffrées
-          </label>
-          <div class="ml-auto flex items-center gap-2">
-            <input id="search" type="search" placeholder="Rechercher un produit" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 w-64">
-          </div>
-        </div>
-
-        <div class="grid md:grid-cols-4 gap-4">
-          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <p class="text-sm text-slate-400">Total mensuel</p>
-            <p class="text-2xl font-semibold text-white" id="total-mensuel">0,00 €</p>
+        <aside class="rounded-2xl border border-slate-800 bg-slate-900/90 shadow-xl shadow-slate-900/50 p-5 space-y-4 lg:sticky lg:top-6">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-slate-400">Snapshot</p>
             <p class="text-xs text-slate-500" id="cc-services">Inclut services Call Connect</p>
           </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <p class="text-sm text-slate-400">Total installation</p>
-            <p class="text-2xl font-semibold text-white" id="total-installation">0,00 €</p>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300 text-sm">Total mensuel</span>
+              <span class="text-xl font-semibold text-white" id="total-mensuel">0,00 €</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300 text-sm">Total installation</span>
+              <span class="text-xl font-semibold text-white" id="total-installation">0,00 €</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300 text-sm">Remises postes/licences</span>
+              <span class="text-lg font-semibold text-emerald-400" id="total-remises">0,00 €</span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-slate-400">
+              <span>Lignes actives</span>
+              <span id="ligne-comptee">0</span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-slate-400">
+              <span>Masquées</span>
+              <span id="ligne-masquee">Masquées : 0</span>
+            </div>
             <p class="text-xs text-emerald-400" id="remise-value">Remise installation : 0,00 €</p>
           </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <p class="text-sm text-slate-400">Remises postes/licences</p>
-            <p class="text-2xl font-semibold text-white" id="total-remises">0,00 €</p>
-            <p class="text-xs text-slate-500">Appliquées uniquement aux lignes ciblées</p>
-          </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <p class="text-sm text-slate-400">Lignes actives</p>
-            <p class="text-2xl font-semibold text-white" id="ligne-comptee">0</p>
-            <p class="text-xs text-slate-500" id="ligne-masquee">Masquées: 0</p>
-          </div>
-        </div>
+        </aside>
       </div>
     </section>
 
-    <section id="product-wrapper" class="mt-8 space-y-6"></section>
+    <section id="product-wrapper" class="space-y-6"></section>
   </main>
 
 <script>
@@ -313,6 +323,83 @@ function bindQuantityInputs() {
   });
 }
 
+function exportOffer() {
+  const rows = produits
+    .map(prod => {
+      const qty = quantities[prod.id] || 0;
+      if (qty <= 0) return null;
+      const { price, discount } = computePrice(prod);
+      const totalLine = price * qty;
+      const installLine = (prod.Install || 0) * qty;
+      return { ...prod, qty, price, discount, totalLine, installLine };
+    })
+    .filter(Boolean);
+
+  if (!rows.length) {
+    alert("Aucune ligne active à exporter.");
+    return;
+  }
+
+  const byCat = {};
+  rows.forEach(r => {
+    const cat = r.Categorie || "Autres";
+    byCat[cat] = byCat[cat] || [];
+    byCat[cat].push(r);
+  });
+
+  let html = `
+    <html><head><meta charset="utf-8"><title>Offre Call Connect</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #0f172a; padding: 24px; }
+      h1 { margin: 0 0 12px 0; }
+      h2 { margin: 16px 0 8px 0; }
+      table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
+      th, td { border: 1px solid #cbd5e1; padding: 8px; font-size: 12px; }
+      th { background: #e2e8f0; text-align: left; }
+      tfoot td { font-weight: bold; }
+    </style></head><body>
+    <h1>Offre Call Connect</h1>
+    <p>Régime : ${regime} | Remise postes ${remisePostes}% | Remise licences ${remiseLicences}% | Remise installation ${remiseInstall}%</p>
+  `;
+
+  Object.keys(byCat).sort().forEach(cat => {
+    html += `<h2>${cat}</h2><table><thead><tr>
+      <th>Produit</th><th>Prix unitaire</th><th>Remise</th><th>Qté</th><th>Total mensuel</th><th>Installation</th>
+    </tr></thead><tbody>`;
+    byCat[cat].forEach(r => {
+      html += `<tr>
+        <td>${r.Produit}</td>
+        <td style="text-align:right;">${euros(r.price)}</td>
+        <td style="text-align:right;">${r.discount ? "-" + r.discount + "%" : "-"}</td>
+        <td style="text-align:right;">${r.qty}</td>
+        <td style="text-align:right;">${euros(r.totalLine)}</td>
+        <td style="text-align:right;">${euros(r.installLine)}</td>
+      </tr>`;
+    });
+    html += "</tbody></table>";
+  });
+
+  const totalMensuel = rows.reduce((s, r) => s + r.totalLine, 0) + ((regime === "loc36" || regime === "loc60") ? 6 + (rows.reduce((s, r) => s + (isPoste(r) ? r.qty : 0), 0) * 0.5) : 0);
+  const totalInstall = rows.reduce((s, r) => s + r.installLine, 0);
+  const remiseInstallValue = totalInstall * (remiseInstall / 100);
+  const installNet = totalInstall - remiseInstallValue;
+
+  html += `<table><tfoot>
+    <tr><td>Total mensuel</td><td style="text-align:right;">${euros(totalMensuel)}</td></tr>
+    <tr><td>Total installation</td><td style="text-align:right;">${euros(installNet)} (remise ${euros(remiseInstallValue)})</td></tr>
+  </tfoot></table>`;
+
+  html += "</body></html>";
+
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert("Pop-up bloqué : autorisez l'ouverture pour exporter.");
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+}
+
 function updateTotals() {
   let totalMensuel = 0;
   let totalInstall = 0;
@@ -321,6 +408,7 @@ function updateTotals() {
   let lignesActives = 0;
   let lignesMasquees = 0;
   const visibleByCat = {};
+  const searchActive = searchTerm.trim().length > 0;
 
   produits.forEach(prod => {
     const qtyInput = document.getElementById(`qty-${prod.id}`);
@@ -344,7 +432,7 @@ function updateTotals() {
     document.getElementById(`install-${prod.id}`).innerText = euros(installLine);
 
     const matchesSearch = prod.Produit.toLowerCase().includes(searchTerm.toLowerCase());
-    const visible = (!onlySelected || qty > 0) && (!hideEmpty || price > 0) && matchesSearch;
+    const visible = matchesSearch && ((!onlySelected || qty > 0 || searchActive) && (!hideEmpty || price > 0 || searchActive));
     if (!visible) lignesMasquees += 1;
     row.style.display = visible ? "" : "none";
     row.classList.toggle("opacity-50", qty === 0 || price === 0);
@@ -423,6 +511,7 @@ function bindControls() {
     searchTerm = e.target.value;
     updateTotals();
   });
+  document.getElementById("export-offer").addEventListener("click", exportOffer);
 }
 
 function loadData() {
