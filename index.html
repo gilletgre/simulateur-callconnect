@@ -247,6 +247,8 @@ function renderTable(cat, list, mainCat = cat) {
   const slug = slugify(cat);
   const rows = list.map(prod => {
     const qty = quantities[prod.id] || 0;
+    const achatOnly = achatOnlyCategories.has(prod.Categorie);
+    const priceLabel = achatOnly ? "Prix (achat)" : `Prix (${regime})`;
     return `
       <tr id="row-${prod.id}" data-maincat="${mainCat}" data-subcat="${cat}" class="${qty > 0 ? "bg-slate-900/50" : ""}">
         <td class="px-4 py-2 align-top">
@@ -279,7 +281,7 @@ function renderTable(cat, list, mainCat = cat) {
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
           <th class="text-left px-4 py-2">Produit</th>
-          <th class="text-right px-4 py-2">Prix (${regime})</th>
+          <th class="text-right px-4 py-2">${list.some(p => achatOnlyCategories.has(p.Categorie)) ? "Prix (achat)" : `Prix (${regime})`}</th>
           <th class="text-right px-4 py-2">Qté</th>
           <th class="text-right px-4 py-2">Total mensuel</th>
           <th class="text-right px-4 py-2">Installation</th>
