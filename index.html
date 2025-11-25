@@ -360,15 +360,11 @@ function computePrice(prod) {
   const monthlyOnly = alwaysMonthlyCategories.has(prod.Categorie);
 
   if (regime === "achat" || regime === "achat_at") {
-    if (monthlyOnly && locEligible) {
-      base = prod.Loc36 || prod.Loc60 || achatAT;
-    } else {
-      base = achatAT || prod.Loc36 || prod.Loc60 || achatAT;
-    }
+    base = achatAT; // pas de fallback sur loc en régime achat
   } else if (regime === "loc36") {
-    base = prod.Loc36 && prod.Loc36 > 0 ? prod.Loc36 : achatAT;
+    base = prod.Loc36 && prod.Loc36 > 0 ? prod.Loc36 : 0;
   } else {
-    base = prod.Loc60 && prod.Loc60 > 0 ? prod.Loc60 : achatAT;
+    base = prod.Loc60 && prod.Loc60 > 0 ? prod.Loc60 : 0;
   }
 
   let discount = 0;
@@ -495,16 +491,17 @@ function updateTotals() {
     let installLine = (prod.Install || 0) * qty;
     if (regime === "achat" || regime === "achat_at") {
       if (monthlyOnly && locEligible) {
+        // reste mensuel, pas d'installation
         installLine = 0;
       } else {
         totalLine = 0;
-        installLine += price * qty;
+        // si prix achat absent, rien n'est compté
+        installLine = price > 0 ? installLine + price * qty : installLine;
       }
     } else if (regime === "loc36" || regime === "loc60") {
       if (achatOnly || !locEligible) {
-        // Achat-only en loc : rien en mensuel, tout en frais uniques
         totalLine = 0;
-        installLine += price * qty;
+        installLine = 0;
       } else {
         // Produit loc éligible : pas de frais d'installation
         installLine = 0;
