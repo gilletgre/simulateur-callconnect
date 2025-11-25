@@ -655,15 +655,16 @@ function exportOffer() {
       const { price, discount, achatOnly, locEligible } = computePrice(prod);
       let totalLine = price * qty;
       let installLine = (prod.Install || 0) * qty;
+      let achatUnique = 0;
       if (regime === "loc36" || regime === "loc60") {
         if (achatOnly || !locEligible) {
           totalLine = 0;
-          installLine += price * qty;
+          achatUnique = price * qty;
         } else {
           installLine = 0;
         }
       }
-      return { ...prod, qty, price, discount, totalLine, installLine, achatOnly, locEligible };
+      return { ...prod, qty, price, discount, totalLine, installLine, achatUnique, achatOnly, locEligible };
     })
     .filter(Boolean);
 
@@ -690,6 +691,7 @@ function exportOffer() {
       table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
       th, td { border: 1px solid #cbd5e1; padding: 8px; font-size: 12px; }
       th { background: #e2e8f0; text-align: left; }
+      tbody tr:nth-child(odd) { background: #f8fafc; }
       tfoot td { font-weight: bold; }
       .badge { display:inline-block; padding:2px 6px; border-radius:10px; background:#e2e8f0; margin-left:6px; font-size:11px;}
     </style></head><body>
@@ -699,7 +701,7 @@ function exportOffer() {
 
   Object.keys(byFam).sort().forEach(fam => {
     html += `<h2>${fam}</h2><table><thead><tr>
-      <th>Produit</th><th>Catégorie</th><th>Prix unitaire</th><th>Remise</th><th>Qté</th><th>Total mensuel</th><th>Installation</th>
+      <th>Produit</th><th>Catégorie</th><th>Prix unitaire</th><th>Remise</th><th>Qté</th><th>Total mensuel</th><th>Installation</th><th>Frais achat</th>
     </tr></thead><tbody>`;
     byFam[fam].forEach(r => {
       html += `<tr>
@@ -710,6 +712,7 @@ function exportOffer() {
         <td style="text-align:right;">${r.qty}</td>
         <td style="text-align:right;">${euros(r.totalLine)}</td>
         <td style="text-align:right;">${euros(r.installLine)}</td>
+        <td style="text-align:right;">${euros(r.achatUnique || 0)}</td>
       </tr>`;
     });
     html += "</tbody></table>";
@@ -720,12 +723,16 @@ function exportOffer() {
     totalMensuel += 6 + deviceQty * 0.5;
   }
   const totalInstall = rows.reduce((s, r) => s + r.installLine, 0);
+  const totalAchatUnique = rows.reduce((s, r) => s + (r.achatUnique || 0), 0);
   const remiseInstallValue = totalInstall * (remiseInstall / 100);
   const installNet = totalInstall - remiseInstallValue;
+  const totalFraisUniquesNet = installNet + totalAchatUnique;
 
   html += `<table><tfoot>
     <tr><td>Total mensuel</td><td style="text-align:right;">${euros(totalMensuel)}</td></tr>
-    <tr><td>Total frais uniques</td><td style="text-align:right;">${euros(installNet)} (remise ${euros(remiseInstallValue)})</td></tr>
+    <tr><td>Frais d'installation</td><td style="text-align:right;">${euros(installNet)} (remise ${euros(remiseInstallValue)})</td></tr>
+    <tr><td>Frais achat uniques</td><td style="text-align:right;">${euros(totalAchatUnique)}</td></tr>
+    <tr><td>Total frais uniques</td><td style="text-align:right;">${euros(totalFraisUniquesNet)}</td></tr>
   </tfoot></table>`;
 
   html += "</body></html>";
