@@ -170,6 +170,31 @@ function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
+function categoryIcon(cat) {
+  const icons = {
+    "Devices": "💻",
+    "DECT": "📡",
+    "DECT Accessoires": "🔌",
+    "Call Connect End Points": "🖧",
+    "Call Connect End Points - DECT": "📱",
+    "Headset": "🎧",
+    "Headset Accessoires": "🎚️",
+    "UTP Cables": "🧵",
+    "Rack": "🗄️",
+    "Installation material": "🧰",
+    "Parlophones": "🚪",
+    "Interface": "🔗",
+    "UPS": "🔋",
+    "Elévateur ": "🏗️",
+    "Licences utilisateurs": "🪪",
+    "Group Licences": "👥",
+    "Alert": "🚨",
+    "SLA": "🛡️",
+    "Autres": "✨"
+  };
+  return icons[cat] || "📦";
+}
+
 function computeSubcategory(prod) {
   if (prod.Categorie !== "Autres") return prod.Categorie;
   const name = prod.Produit.toLowerCase();
@@ -206,21 +231,26 @@ function computePrice(prod) {
 function renderGroupedTable() {
   const container = document.getElementById("product-wrapper");
   container.innerHTML = "";
+  const searchActive = searchTerm.trim().length > 0;
   const categories = [...new Set(produits.map(p => p.Categorie))].sort();
+  if (collapsedCategories.size === 0) {
+    categories.forEach(cat => collapsedCategories.add(cat));
+  }
 
   categories.forEach(cat => {
     const section = document.createElement("section");
     section.className = "rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-lg shadow-slate-900/50";
     section.dataset.cat = cat;
+    const isCollapsed = collapsedCategories.has(cat) && !searchActive;
     section.innerHTML = `
       <div class="flex items-center justify-between px-4 py-3 bg-slate-900/80 border-b border-slate-800">
         <div>
           <p class="text-xs uppercase tracking-wide text-slate-500">Catégorie</p>
-          <h2 class="text-lg font-semibold text-white">${cat}</h2>
+          <h2 class="text-lg font-semibold text-white flex items-center gap-2"><span>${categoryIcon(cat)}</span><span>${cat}</span></h2>
         </div>
-        <button class="toggle-cat text-slate-300 hover:text-white text-xl" aria-label="Basculer catégorie">${collapsedCategories.has(cat) ? "▶" : "▼"}</button>
+        <button class="toggle-cat text-slate-300 hover:text-white text-xl" aria-label="Basculer catégorie">${isCollapsed ? "▶" : "▼"}</button>
       </div>
-      <div class="cat-body ${collapsedCategories.has(cat) ? "hidden" : ""}">
+      <div class="cat-body ${isCollapsed ? "hidden" : ""}">
         ${
           cat === "Autres"
             ? renderAutres(produits.filter(p => p.Categorie === cat))
@@ -238,6 +268,16 @@ function renderGroupedTable() {
       }
       section.querySelector(".cat-body").classList.toggle("hidden");
       section.querySelector(".toggle-cat").innerText = collapsedCategories.has(cat) ? "▶" : "▼";
+    });
+    section.addEventListener("mouseenter", () => {
+      section.querySelector(".cat-body").classList.remove("hidden");
+      section.querySelector(".toggle-cat").innerText = "▼";
+    });
+    section.addEventListener("mouseleave", () => {
+      if (collapsedCategories.has(cat) && !searchActive) {
+        section.querySelector(".cat-body").classList.add("hidden");
+        section.querySelector(".toggle-cat").innerText = "▶";
+      }
     });
   });
   bindQuantityInputs();
@@ -451,6 +491,15 @@ function updateTotals() {
     if (!body) return;
     const hasVisible = visibleByCat[cat] > 0 || (!onlySelected && !hideEmpty);
     section.style.display = hasVisible ? "" : "none";
+    if (searchActive && visibleByCat[cat] > 0) {
+      body.classList.remove("hidden");
+      const toggle = section.querySelector(".toggle-cat");
+      if (toggle) toggle.innerText = "▼";
+    } else if (collapsedCategories.has(cat)) {
+      body.classList.add("hidden");
+      const toggle = section.querySelector(".toggle-cat");
+      if (toggle) toggle.innerText = "▶";
+    }
   });
 
   if (regime === "loc36" || regime === "loc60") {
