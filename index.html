@@ -488,7 +488,10 @@ function updateTotals() {
     const { price, base, discount, achatOnly, locEligible } = computePrice(prod);
     let totalLine = price * qty;
     let installLine = (prod.Install || 0) * qty;
-    if (regime === "loc36" || regime === "loc60") {
+    if (regime === "achat" || regime === "achat_at") {
+      totalLine = 0;
+      installLine += price * qty;
+    } else if (regime === "loc36" || regime === "loc60") {
       if (achatOnly || !locEligible) {
         // Achat-only en loc : rien en mensuel, tout en frais uniques
         totalLine = 0;
@@ -659,15 +662,19 @@ function exportOffer() {
       const qty = quantities[prod.id] || 0;
       if (qty <= 0 || isHiddenByName(prod)) return null;
       const { price, discount, achatOnly, locEligible } = computePrice(prod);
-      let totalLine = price * qty;
-      let installLine = (prod.Install || 0) * qty;
-      let achatUnique = 0;
-      if (regime === "loc36" || regime === "loc60") {
-        if (achatOnly || !locEligible) {
-          totalLine = 0;
-          achatUnique = price * qty;
-        } else {
-          installLine = 0;
+    let totalLine = price * qty;
+    let installLine = (prod.Install || 0) * qty;
+    let achatUnique = 0;
+    if (regime === "achat" || regime === "achat_at") {
+      // En achat : rien en mensuel, tout en frais uniques (achat + install)
+      totalLine = 0;
+      installLine += price * qty;
+    } else if (regime === "loc36" || regime === "loc60") {
+      if (achatOnly || !locEligible) {
+        totalLine = 0;
+        achatUnique = price * qty;
+      } else {
+        installLine = 0;
         }
       }
       return { ...prod, qty, price, discount, totalLine, installLine, achatUnique, achatOnly, locEligible };
