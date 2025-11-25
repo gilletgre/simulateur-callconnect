@@ -5,178 +5,349 @@
   <title>Simulateur Call Connect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
-    body { font-family: 'Helvetica Neue', sans-serif; }
-    .hidden { display: none; }
+    :root {
+      --accent: #0ea5e9;
+      --accent-strong: #06b6d4;
+    }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .tag { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 999px; }
   </style>
 </head>
-<body class="bg-white text-gray-900">
-  <header class="bg-gray-100 shadow mb-6">
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <h1 class="text-3xl font-bold">Simulateur Call Connect</h1>
+<body class="bg-slate-950 text-slate-100">
+  <header class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <span class="tag bg-slate-800 text-sky-200 border border-slate-700">PBX vérifié</span>
+        <span class="tag bg-emerald-900/60 text-emerald-100 border border-emerald-800">Export prêt Netlify</span>
+      </div>
+      <div class="flex flex-wrap items-end gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Simulateur Call Connect</h1>
+          <p class="text-slate-300">Base prix consolidée PBX + Excel, régimes achat / achat+AT / location, remises automatiques.</p>
+        </div>
+        <div class="ml-auto text-right space-y-1">
+          <p class="text-slate-400 text-sm">Dernière synchro</p>
+          <p class="text-xl font-semibold text-white" id="sync-date">-</p>
+        </div>
+      </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4">
-    <!-- Vidéo d'intro -->
-    <div class="aspect-w-16 aspect-h-9 mb-6">
-      <video autoplay loop muted playsinline class="w-full h-96 object-cover rounded-lg shadow">
-        <source src="https://www.webex.com/content/dam/wbx/us/images/rebrand/hero-videos/webex_device_landing_hero.mp4" type="video/mp4">
-        Votre navigateur ne supporte pas la vidéo HTML5.
-      </video>
-    </div>
+  <main class="max-w-7xl mx-auto px-4 pb-12">
+    <section id="config" class="hidden -mt-10 relative z-10">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-slate-900/60 p-6 space-y-6">
+        <div class="grid lg:grid-cols-5 gap-4 items-center">
+          <div class="lg:col-span-2 space-y-2">
+            <p class="text-sm text-slate-400">Régime</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button class="regime-btn" data-regime="achat">Achat</button>
+              <button class="regime-btn" data-regime="achat_at">Achat + AT</button>
+              <button class="regime-btn" data-regime="loc36">Location 36 mois</button>
+              <button class="regime-btn" data-regime="loc60">Location 60 mois</button>
+            </div>
+          </div>
+          <div>
+            <label class="text-sm text-slate-400">Remise postes</label>
+            <input id="remise-postes" type="number" min="0" max="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
+          </div>
+          <div>
+            <label class="text-sm text-slate-400">Remise licences standard</label>
+            <input id="remise-licences" type="number" min="0" max="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
+          </div>
+          <div>
+            <label class="text-sm text-slate-400">Remise installation</label>
+            <input id="remise-install" type="number" min="0" max="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
+          </div>
+        </div>
 
-    <!-- Interface de configuration -->
-    <div id="config" class="hidden">
-      <div class="flex flex-wrap gap-6 items-center mb-6">
-        <label><input type="radio" name="regime" value="achat" onclick="regime='achat'; update()"> Achat + A.T.</label>
-        <label><input type="radio" name="regime" value="loc36" checked onclick="regime='loc36'; update()"> Location 36 mois</label>
-        <label><input type="radio" name="regime" value="loc60" onclick="regime='loc60'; update()"> Location 60 mois</label>
+        <div class="flex flex-wrap gap-3 items-center">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-300">
+            <input id="toggle-selected" type="checkbox" class="accent-sky-400"> Afficher uniquement les quantités &gt; 0
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm text-slate-300">
+            <input id="toggle-hide-empty" type="checkbox" class="accent-sky-400"> Masquer les lignes non chiffrées
+          </label>
+          <div class="ml-auto flex items-center gap-2">
+            <input id="search" type="search" placeholder="Rechercher un produit" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 w-64">
+          </div>
+        </div>
 
-        <label for="remise" class="ml-auto">Remise installation :</label>
-        <select id="remise" class="border p-1 rounded" onchange="remiseInstall = parseInt(this.value); update();">
-          <option value="0">0%</option>
-          <option value="10">10%</option>
-          <option value="20">20%</option>
-          <option value="30">30%</option>
-          <option value="40">40%</option>
-        </select>
+        <div class="grid md:grid-cols-4 gap-4">
+          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+            <p class="text-sm text-slate-400">Total mensuel</p>
+            <p class="text-2xl font-semibold text-white" id="total-mensuel">0,00 €</p>
+            <p class="text-xs text-slate-500" id="cc-services">Inclut services Call Connect</p>
+          </div>
+          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+            <p class="text-sm text-slate-400">Total installation</p>
+            <p class="text-2xl font-semibold text-white" id="total-installation">0,00 €</p>
+            <p class="text-xs text-emerald-400" id="remise-value">Remise installation : 0,00 €</p>
+          </div>
+          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+            <p class="text-sm text-slate-400">Remises postes/licences</p>
+            <p class="text-2xl font-semibold text-white" id="total-remises">0,00 €</p>
+            <p class="text-xs text-slate-500">Appliquées uniquement aux lignes ciblées</p>
+          </div>
+          <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+            <p class="text-sm text-slate-400">Lignes actives</p>
+            <p class="text-2xl font-semibold text-white" id="ligne-comptee">0</p>
+            <p class="text-xs text-slate-500" id="ligne-masquee">Masquées: 0</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <button onclick="filtrerResume()" class="mb-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Afficher uniquement les lignes avec quantités</button>
-
-      <div id="product-sections"></div>
-
-      <div class="border-t pt-4 text-right space-y-2 mt-6 text-lg">
-        <div>Call Connect Services Start : <span id="cc-start">-</span></div>
-        <div>Call Connect Device Services : <span id="cc-device">-</span></div>
-        <div>Remise sur installation : <span id="remise-value">-</span></div>
-        <div class="font-bold text-xl">Total Installation : <span id="total-installation">0.00 €</span></div>
-        <div class="font-bold text-xl">Total Mensuel : <span id="total-mensuel">0.00 €</span></div>
-      </div>
-    </div>
+    <section id="product-wrapper" class="mt-8 space-y-6"></section>
   </main>
 
 <script>
 let produits = [];
+let quantities = {};
 let regime = "loc36";
 let remiseInstall = 0;
+let remisePostes = 0;
+let remiseLicences = 0;
+let onlySelected = false;
+let hideEmpty = false;
+let searchTerm = "";
 
-function parseExcel(buffer) {
-  const workbook = XLSX.read(buffer, { type: "array" });
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet);
-  produits = rows.map(r => ({
-    nom: r["Produit"] || r["produit"] || "",
-    cat: r["Catégorie"] || r["categorie"] || "Autres",
-    achat: +r["Achat"] || +r["achat"] || 0,
-    at: +r["AT"] || +r["at"] || 0,
-    loc36: +r["Loc36"] || +r["loc36"] || 0,
-    loc60: +r["Loc60"] || +r["loc60"] || 0,
-    install: +r["Install"] || +r["install"] || 0
-  }));
-  document.getElementById("config").classList.remove("hidden");
-  renderGroupedTable();
-  update();
+const deviceCategories = new Set([
+  "Devices",
+  "DECT",
+  "DECT Accessoires",
+  "Call Connect End Points",
+  "Call Connect End Points - DECT"
+]);
+
+function euros(value) {
+  return value.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+}
+
+function isStandardLicence(prod) {
+  return prod.Produit.toLowerCase().includes("standard license call connect");
+}
+
+function isPoste(prod) {
+  return deviceCategories.has(prod.Categorie);
+}
+
+function computePrice(prod) {
+  let base = 0;
+  if (regime === "achat") {
+    base = prod.Achat || prod.Loc36 || prod.Loc60 || prod.AT;
+  } else if (regime === "achat_at") {
+    base = (prod.Achat || 0) + (prod.AT || 0);
+    if (base === 0) base = prod.Loc36 || prod.Loc60 || prod.Achat || prod.AT;
+  } else if (regime === "loc36") {
+    base = prod.Loc36 || prod.Loc60 || prod.Achat || prod.AT;
+  } else {
+    base = prod.Loc60 || prod.Loc36 || prod.Achat || prod.AT;
+  }
+
+  let discount = 0;
+  if (isPoste(prod)) discount = Math.max(discount, remisePostes);
+  if (isStandardLicence(prod)) discount = Math.max(discount, remiseLicences);
+  const price = base * (1 - discount / 100);
+  return { price, base, discount };
 }
 
 function renderGroupedTable() {
-  const container = document.getElementById("product-sections");
+  const container = document.getElementById("product-wrapper");
   container.innerHTML = "";
-  const categories = [...new Set(produits.map(p => p.cat))];
+  const categories = [...new Set(produits.map(p => p.Categorie))].sort();
+
   categories.forEach(cat => {
-    const section = document.createElement("div");
-    section.innerHTML = `<h2 class='text-xl font-semibold mt-6 mb-2'>${cat}</h2><table class='w-full table-auto border mb-4'>
-      <thead>
-        <tr class='bg-gray-100'>
-          <th class='p-2 text-left'>Produit</th>
-          <th class='p-2 text-right'>Prix</th>
-          <th class='p-2 text-right'>Qté</th>
-          <th class='p-2 text-right'>Total</th>
-          <th class='p-2 text-right'>Install</th>
-        </tr>
-      </thead>
-      <tbody id='tbody-${cat}'></tbody>
-    </table>`;
+    const section = document.createElement("section");
+    section.className = "rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-lg shadow-slate-900/50";
+    section.innerHTML = `
+      <div class="flex items-center justify-between px-4 py-3 bg-slate-900/80 border-b border-slate-800">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-slate-500">Catégorie</p>
+          <h2 class="text-lg font-semibold text-white">${cat}</h2>
+        </div>
+      </div>
+      <table class="w-full text-sm">
+        <thead class="bg-slate-900/70 text-slate-300">
+          <tr>
+            <th class="text-left px-4 py-2">Produit</th>
+            <th class="text-right px-4 py-2">Prix (${regime})</th>
+            <th class="text-right px-4 py-2">Qté</th>
+            <th class="text-right px-4 py-2">Total mensuel</th>
+            <th class="text-right px-4 py-2">Installation</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-${cat.replace(/\\s+/g,'-')}" class="divide-y divide-slate-800"></tbody>
+      </table>
+    `;
     container.appendChild(section);
 
-    const tbody = document.getElementById(`tbody-${cat}`);
-    produits.forEach((p, i) => {
-      if (p.cat === cat) {
+    const tbody = section.querySelector("tbody");
+    produits
+      .filter(p => p.Categorie === cat)
+      .forEach(prod => {
+        const qty = quantities[prod.id] || 0;
         const row = document.createElement("tr");
-        row.id = `row-${i}`;
+        row.id = `row-${prod.id}`;
+        row.className = qty > 0 ? "bg-slate-900/50" : "";
         row.innerHTML = `
-          <td class='p-2'>${p.nom}</td>
-          <td class='p-2 text-right' id='prix-${i}'>-</td>
-          <td class='p-2 text-right'><input type='number' id='qty-${i}' class='w-20 border p-1 text-right' value='0' onchange='update()'></td>
-          <td class='p-2 text-right' id='total-${i}'>-</td>
-          <td class='p-2 text-right' id='install-${i}'>-</td>`;
+          <td class="px-4 py-2 align-top">
+            <div class="font-medium text-white">${prod.Produit}</div>
+            <div class="text-xs text-slate-500 flex gap-2 mt-1">
+              ${isPoste(prod) ? '<span class="tag bg-slate-800 text-sky-200 border border-slate-700">Poste</span>' : ""}
+              ${isStandardLicence(prod) ? '<span class="tag bg-slate-800 text-amber-200 border border-slate-700">Licence standard</span>' : ""}
+            </div>
+          </td>
+          <td class="px-4 py-2 text-right">
+            <div id="prix-${prod.id}" class="font-semibold text-slate-100">-</div>
+            <div id="discount-${prod.id}" class="text-xs text-emerald-400"></div>
+          </td>
+          <td class="px-4 py-2 text-right">
+            <input type="number" min="0" value="${qty}" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
+          </td>
+          <td class="px-4 py-2 text-right">
+            <div id="total-${prod.id}" class="font-semibold text-slate-100">-</div>
+          </td>
+          <td class="px-4 py-2 text-right">
+            <div id="install-${prod.id}" class="font-semibold text-slate-100">-</div>
+          </td>
+        `;
         tbody.appendChild(row);
-      }
-    });
+
+        document.getElementById(`qty-${prod.id}`).addEventListener("input", (e) => {
+          quantities[prod.id] = parseInt(e.target.value || "0");
+          updateTotals();
+        });
+      });
   });
 }
 
-function update() {
+function updateTotals() {
   let totalMensuel = 0;
   let totalInstall = 0;
   let deviceQty = 0;
+  let totalRemises = 0;
+  let lignesActives = 0;
+  let lignesMasquees = 0;
 
-  produits.forEach((p, i) => {
-    const qty = parseInt(document.getElementById(`qty-${i}`)?.value) || 0;
-    let prixUnit = regime === "loc36" ? p.loc36 : regime === "loc60" ? p.loc60 : p.achat + p.at;
-    if ((regime === "loc36" && p.loc36 === 0) || (regime === "loc60" && p.loc60 === 0)) {
-      prixUnit = p.achat + p.at;
-    }
+  produits.forEach(prod => {
+    const qtyInput = document.getElementById(`qty-${prod.id}`);
+    const row = document.getElementById(`row-${prod.id}`);
+    if (!qtyInput || !row) return;
+    const qty = parseInt(qtyInput.value || "0");
+    quantities[prod.id] = qty;
+    const { price, base, discount } = computePrice(prod);
+    const totalLine = price * qty;
+    const installLine = (prod.Install || 0) * qty;
 
-    const totalProduit = prixUnit * qty;
-    const installProduit = p.install * qty;
+    if (isPoste(prod)) deviceQty += qty;
+    totalMensuel += totalLine;
+    totalInstall += installLine;
+    totalRemises += (base - price) * qty;
+    if (qty > 0) lignesActives += 1;
 
-    totalMensuel += totalProduit;
-    totalInstall += installProduit;
-    if (p.cat.toLowerCase() === "devices") deviceQty += qty;
+    document.getElementById(`prix-${prod.id}`).innerText = price > 0 ? euros(price) : "Non chiffré";
+    document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
+    document.getElementById(`total-${prod.id}`).innerText = euros(totalLine);
+    document.getElementById(`install-${prod.id}`).innerText = euros(installLine);
 
-    const prixEl = document.getElementById(`prix-${i}`);
-    const totalEl = document.getElementById(`total-${i}`);
-    const installEl = document.getElementById(`install-${i}`);
-    if (prixEl) prixEl.innerText = prixUnit.toFixed(2) + " €";
-    if (totalEl) totalEl.innerText = totalProduit.toFixed(2) + " €";
-    if (installEl) installEl.innerText = installProduit.toFixed(2) + " €";
+    const matchesSearch = prod.Produit.toLowerCase().includes(searchTerm.toLowerCase());
+    const visible = (!onlySelected || qty > 0) && (!hideEmpty || price > 0) && matchesSearch;
+    if (!visible) lignesMasquees += 1;
+    row.style.display = visible ? "" : "none";
+    row.classList.toggle("opacity-50", qty === 0 || price === 0);
   });
 
-  if (regime !== "achat") {
+  if (regime === "loc36" || regime === "loc60") {
     totalMensuel += 6.0;
-    document.getElementById("cc-start").innerText = "6.00 €";
     const devCost = deviceQty * 0.5;
     totalMensuel += devCost;
-    document.getElementById("cc-device").innerText = devCost > 0 ? devCost.toFixed(2) + " €" : "-";
+    document.getElementById("cc-services").innerText = `Start 6,00 € + devices ${devCost > 0 ? euros(devCost) : "-"}`;
   } else {
-    document.getElementById("cc-start").innerText = "-";
-    document.getElementById("cc-device").innerText = "-";
+    document.getElementById("cc-services").innerText = "Pas de frais mensuels supplémentaires";
   }
 
-  const remise = totalInstall * (remiseInstall / 100);
-  const installNet = totalInstall - remise;
-  document.getElementById("remise-value").innerText = "-" + remise.toFixed(2) + " €";
-  document.getElementById("total-installation").innerText = installNet.toFixed(2) + " €";
-  document.getElementById("total-mensuel").innerText = totalMensuel.toFixed(2) + " €";
+  const remiseInstallValue = totalInstall * (remiseInstall / 100);
+  const installNet = totalInstall - remiseInstallValue;
+
+  document.getElementById("total-mensuel").innerText = euros(totalMensuel);
+  document.getElementById("total-installation").innerText = euros(installNet);
+  document.getElementById("remise-value").innerText = `Remise installation : ${euros(remiseInstallValue)}`;
+  document.getElementById("total-remises").innerText = euros(totalRemises);
+  document.getElementById("ligne-comptee").innerText = lignesActives;
+  document.getElementById("ligne-masquee").innerText = `Masquées : ${lignesMasquees}`;
 }
 
-function filtrerResume() {
-  produits.forEach((_, i) => {
-    const row = document.getElementById(`row-${i}`);
-    const qte = parseInt(document.getElementById(`qty-${i}`)?.value || 0);
-    if (row) row.style.display = qte > 0 ? "table-row" : "none";
+function activateButtons() {
+  document.querySelectorAll(".regime-btn").forEach(btn => {
+    btn.className = "regime-btn px-3 py-2 rounded-lg border text-sm transition " +
+      (btn.dataset.regime === regime
+        ? "bg-sky-500/20 border-sky-400 text-white"
+        : "bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-500");
+    btn.onclick = () => {
+      regime = btn.dataset.regime;
+      activateButtons();
+      renderGroupedTable();
+      updateTotals();
+    };
   });
 }
 
-window.onload = () => {
-  fetch("https://simulateur-callconnect.netlify.app/CallConnect_DB_CLEAN_FINAL.xlsx")
-    .then(res => res.arrayBuffer())
-    .then(data => parseExcel(data))
-    .catch(err => alert("Erreur lors du chargement de la base de données : " + err.message));
-};
+function bindControls() {
+  document.getElementById("remise-install").addEventListener("input", (e) => {
+    remiseInstall = parseFloat(e.target.value || "0");
+    updateTotals();
+  });
+  document.getElementById("remise-postes").addEventListener("input", (e) => {
+    remisePostes = parseFloat(e.target.value || "0");
+    updateTotals();
+  });
+  document.getElementById("remise-licences").addEventListener("input", (e) => {
+    remiseLicences = parseFloat(e.target.value || "0");
+    updateTotals();
+  });
+  document.getElementById("toggle-selected").addEventListener("change", (e) => {
+    onlySelected = e.target.checked;
+    updateTotals();
+  });
+  document.getElementById("toggle-hide-empty").addEventListener("change", (e) => {
+    hideEmpty = e.target.checked;
+    updateTotals();
+  });
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value;
+    updateTotals();
+  });
+}
+
+function loadData() {
+  fetch("./data/products.json")
+    .then(res => res.json())
+    .then(data => {
+      produits = data.map((p, idx) => ({
+        ...p,
+        id: idx,
+        // harmonise numeric fields
+        Achat: Number(p.Achat) || 0,
+        AT: Number(p.AT) || 0,
+        Loc36: Number(p.Loc36) || 0,
+        Loc60: Number(p.Loc60) || 0,
+        Install: Number(p.Install) || 0
+      }));
+      document.getElementById("sync-date").innerText = new Date().toLocaleString("fr-FR");
+      document.getElementById("config").classList.remove("hidden");
+      renderGroupedTable();
+      activateButtons();
+      bindControls();
+      updateTotals();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Erreur lors du chargement de la base produits : " + err.message);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", loadData);
 </script>
 </body>
 </html>
