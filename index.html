@@ -12,6 +12,8 @@
     }
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     .tag { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 999px; }
+    .col-price, .col-qte, .col-total, .col-install { width: 140px; text-align: right; }
+    .col-install { width: 120px; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100">
@@ -61,15 +63,15 @@
               </div>
             </div>
             <div class="space-y-2">
-              <label class="text-sm text-slate-400">Remise postes</label>
+              <label class="text-sm text-slate-400">Remise postes (%)</label>
               <input id="remise-postes" type="number" min="0" max="100" class="w-40 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
             </div>
             <div class="space-y-2">
-              <label class="text-sm text-slate-400">Remise licences standard</label>
+              <label class="text-sm text-slate-400">Remise licences standard (%)</label>
               <input id="remise-licences" type="number" min="0" max="100" class="w-52 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
             </div>
             <div class="space-y-2">
-              <label class="text-sm text-slate-400">Remise installation</label>
+              <label class="text-sm text-slate-400">Remise installation (%)</label>
               <input id="remise-install" type="number" min="0" max="100" class="w-40 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
             </div>
           </div>
@@ -102,10 +104,10 @@
               <span class="text-slate-300 text-sm">Total installation</span>
               <span class="text-xl font-semibold text-white" id="total-installation">0,00 €</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-slate-300 text-sm">Remises postes/licences</span>
-              <span class="text-lg font-semibold text-emerald-400" id="total-remises">0,00 €</span>
-            </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300 text-sm">Remises postes/licences (%)</span>
+            <span class="text-lg font-semibold text-emerald-400" id="total-remises">0,00 €</span>
+          </div>
             <div class="flex items-center justify-between text-sm text-slate-400">
               <span>Lignes actives</span>
               <span id="ligne-comptee">0</span>
@@ -302,13 +304,13 @@ function renderTable(cat, list, mainCat = cat) {
           <div id="prix-${prod.id}" class="font-semibold text-slate-100">-</div>
           <div id="discount-${prod.id}" class="text-xs text-emerald-400"></div>
         </td>
-        <td class="px-4 py-2 text-right">
+        <td class="px-4 py-2 text-right col-qte">
           <input type="number" min="0" value="${qty}" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
         </td>
-        <td class="px-4 py-2 text-right">
+        <td class="px-4 py-2 text-right col-total">
           <div id="total-${prod.id}" class="font-semibold text-slate-100">-</div>
         </td>
-        <td class="px-4 py-2 text-right">
+        <td class="px-4 py-2 text-right col-install">
           <div id="install-${prod.id}" class="font-semibold text-slate-100">-</div>
         </td>
       </tr>
@@ -321,10 +323,10 @@ function renderTable(cat, list, mainCat = cat) {
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
           <th class="text-left px-4 py-2">Produit</th>
-          <th class="text-right px-4 py-2">${list.some(p => achatOnlyCategories.has(p.Categorie)) ? "Prix (achat)" : `Prix (${regime})`}</th>
-          <th class="text-right px-4 py-2">Qté</th>
-          <th class="text-right px-4 py-2">Total mensuel</th>
-          <th class="text-right px-4 py-2">Installation</th>
+          <th class="px-4 py-2 col-price">${list.some(p => achatOnlyCategories.has(p.Categorie)) ? "Prix (achat)" : `Prix (${regime})`}</th>
+          <th class="px-4 py-2 col-qte">Qté</th>
+          <th class="px-4 py-2 col-total">Total mensuel</th>
+          <th class="px-4 py-2 col-install">Installation</th>
         </tr>
       </thead>
       <tbody id="tbody-${slug}" class="divide-y divide-slate-800">
