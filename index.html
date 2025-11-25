@@ -26,7 +26,7 @@
       <div class="flex flex-wrap items-end gap-4">
         <div>
           <h1 class="text-3xl font-bold text-white">Simulateur Call Connect</h1>
-          <p class="text-slate-300">Base prix consolidée PBX + Excel, régimes achat / achat+AT / location, remises automatiques.</p>
+          <p class="text-slate-300">Régimes achat / location, remises ciblées et export direct.</p>
         </div>
         <div class="ml-auto text-right space-y-1">
           <p class="text-slate-400 text-sm">Dernière synchro</p>
@@ -45,7 +45,7 @@
       <div class="absolute inset-0 flex flex-col justify-center px-8 py-6 space-y-3">
         <p class="tag bg-slate-800 text-sky-200 border border-slate-700 w-fit">Vue simulateur</p>
         <h2 class="text-2xl font-bold text-white">Configurez, appliquez les remises, exportez</h2>
-        <p class="text-slate-300 max-w-3xl">Base prix synchronisée avec PBX + Excel, régimes achat / achat + AT / location, filtres de visibilité et ventilation des remises.</p>
+        <p class="text-slate-300 max-w-3xl">Sélection rapide, filtres visuels, export HTML prêt à partager.</p>
       </div>
     </section>
 
@@ -173,28 +173,30 @@ function slugify(text) {
 }
 
 function categoryIcon(cat) {
+  const svg = (path) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">${path}</svg>`;
   const icons = {
-    "Devices": "💻",
-    "DECT": "📡",
-    "DECT Accessoires": "🔌",
-    "Call Connect End Points": "🖧",
-    "Call Connect End Points - DECT": "📱",
-    "Headset": "🎧",
-    "Headset Accessoires": "🎚️",
-    "UTP Cables": "🧵",
-    "Rack": "🗄️",
-    "Installation material": "🧰",
-    "Parlophones": "🚪",
-    "Interface": "🔗",
-    "UPS": "🔋",
-    "Elévateur ": "🏗️",
-    "Licences utilisateurs": "🪪",
-    "Group Licences": "👥",
-    "Alert": "🚨",
-    "SLA": "🛡️",
-    "Autres": "✨"
+    "Devices": svg('<path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm2 0v9h12V5H6Zm4 13h4a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1Z"/>'),
+    "DECT": svg('<path d="M12 3a7 7 0 0 1 7 7c0 2.61-1.4 4.88-3.5 6.12V19a1 1 0 0 1-1 1h-1v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1H9a1 1 0 0 1-1-1v-2.88A6.98 6.98 0 0 1 5 10a7 7 0 0 1 7-7Zm0 2a5 5 0 0 0-5 5c0 1.87 1.02 3.51 2.5 4.39V18h5v-3.61A5.01 5.01 0 0 0 17 10a5 5 0 0 0-5-5Z"/>'),
+    "DECT Accessoires": svg('<path d="M6 5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3h1a1 1 0 1 1 0 2h-1v4a2 2 0 0 1-2 2h-2l1 2a1 1 0 0 1-1.8.8L11 16H8a2 2 0 0 1-2-2V5Zm2 0v9h8V5H8Z"/>'),
+    "Call Connect End Points": svg('<path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v2a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V4Zm2 0v16h6V4H9Zm8 4v6h1V8h-1Z"/>'),
+    "Call Connect End Points - DECT": svg('<path d="M8 4a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3V4Zm3-1a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-2Z"/>'),
+    "Headset": svg('<path d="M12 3a7 7 0 0 0-7 7v2a2 2 0 0 0 2 2h1v3a1 1 0 0 0 1 1h3v-3h2v3h3a1 1 0 0 0 1-1v-3h1a2 2 0 0 0 2-2v-2a7 7 0 0 0-7-7Zm-5 7a5 5 0 1 1 10 0v2h-1V9a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v5H8V9a1 1 0 0 0-1-1H5v2Z"/>'),
+    "Headset Accessoires": svg('<path d="M5 5a2 2 0 0 1 2-2h6a3 3 0 0 1 0 6H9v3h3a1 1 0 1 1 0 2H9v2a1 1 0 1 1-2 0V5Zm2 0v2h6a1 1 0 1 0 0-2H7Z"/>'),
+    "UTP Cables": svg('<path d="M4 7a3 3 0 0 1 3-3h2v3h2V4h2a3 3 0 0 1 3 3v2h-5v2h5v2a3 3 0 0 1-3 3h-2v-3h-2v3H7a3 3 0 0 1-3-3V7Zm3-1a1 1 0 0 0-1 1v2h2V6H7Zm7 0h-1v3h2V7a1 1 0 0 0-1-1Z"/>'),
+    "Rack": svg('<path d="M6 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16h-2v-2H8v2H6V4Zm2 0v3h8V4H8Zm0 5v3h8V9H8Zm0 5v2h8v-2H8Z"/>'),
+    "Installation material": svg('<path d="M4 6a2 2 0 0 1 2-2h5v3h2V4h3a2 2 0 0 1 2 2v5h-3V9h-2v2h-2V9H9v2H6V6Zm0 6h3v8H6a2 2 0 0 1-2-2v-6Zm5 0h2v8H9v-8Zm4 0h2v8h-2v-8Z"/>'),
+    "Parlophones": svg('<path d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3Zm2 1v2h4V4h-4Zm0 4v2h4V8h-4Zm0 4v2h4v-2h-4Zm2 4a1 1 0 1 0 0 2h0a1 1 0 0 0 0-2Z"/>'),
+    "Interface": svg('<path d="M7 5a3 3 0 0 1 3-3h4a3 3 0 0 1 0 6h-4a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-4ZM5 15a3 3 0 0 1 3-3h4a3 3 0 0 1 0 6H8a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2H8Z"/>'),
+    "UPS": svg('<path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16h-2v-3H9v3H7V4Zm2 0v11h6V4H9Zm1 3h4v2h-4V7Zm0 3h2v2h-2v-2Z"/>'),
+    "Elévateur ": svg('<path d="M6 5a2 2 0 0 1 2-2h4l2 3h4a1 1 0 1 1 0 2h-3l-2 3h-3l-2-3H6v9h2v-2a1 1 0 1 1 2 0v2h6v-2a1 1 0 1 1 2 0v2h1a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1V5Z"/>'),
+    "Licences utilisateurs": svg('<path d="M9 6a3 3 0 1 1 6 0v2a3 3 0 1 1-6 0V6Zm-4 9a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v4H5v-4Zm4 0a2 2 0 0 0-2 2v2h10v-2a2 2 0 0 0-2-2H9Z"/>'),
+    "Group Licences": svg('<path d="M7 7a3 3 0 1 1 6 0v1a3 3 0 1 1-6 0V7Zm8 0a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0V7ZM3 7a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0V7Zm-1 8a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v3H2v-3Zm16 0a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3h-5v-3Zm-17 0a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3H0v-3Z"/>'),
+    "Alert": svg('<path d="M11.1 3.38a1 1 0 0 1 1.8 0l7 14A1 1 0 0 1 19 19H5a1 1 0 0 1-.9-1.62l7-14ZM12 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0-4a1 1 0 0 0 1-1V8a1 1 0 1 0-2 0v3a1 1 0 0 0 1 1Z"/>'),
+    "SLA": svg('<path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8.5l-3.25-1.63a1 1 0 0 0-.9 0L12 13l-2.85-1.13a1 1 0 0 0-.9 0L5 13.5V5Zm0 12.2 4.45-2.23L12 15l2.55-.03L19 17.2V19H5v-1.8Z"/>'),
+    "Autres": svg('<path d="M12 3 9 9l-6 .5 4.5 4-1.5 6 6-3.5 6 3.5-1.5-6 4.5-4-6-.5-3-6Z"/>')
   };
-  return icons[cat] || "📦";
+  return icons[cat] || svg('<path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Zm2 0v10h12V6H6Zm2 3h8v2H8V9Zm0 4h5v2H8v-2Z"/>');
 }
 
 function computeSubcategory(prod) {
@@ -248,7 +250,7 @@ function renderGroupedTable() {
       <div class="flex items-center justify-between px-4 py-3 bg-slate-900/80 border-b border-slate-800">
         <div>
           <p class="text-xs uppercase tracking-wide text-slate-500">Catégorie</p>
-          <h2 class="text-lg font-semibold text-white flex items-center gap-2"><span>${categoryIcon(cat)}</span><span>${cat}</span></h2>
+          <h2 class="text-lg font-semibold text-white flex items-center gap-2"><span class="w-5 h-5 inline-flex items-center justify-center text-sky-300">${categoryIcon(cat)}</span><span>${cat}</span></h2>
         </div>
         <button class="toggle-cat text-slate-300 hover:text-white text-xl" aria-label="Basculer catégorie">${isCollapsed ? "▶" : "▼"}</button>
       </div>
