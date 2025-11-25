@@ -169,6 +169,11 @@ const achatOnlyCategories = new Set([
 const achatOnlyProducts = new Set([
   "pabx - on site training (2h)"
 ]);
+const hiddenPatterns = [
+  "call connect pack",
+  "call connect endpoint",
+  "call connect endpoints"
+];
 // Mapping produit -> famille pour le rendu et pour d'éventuelles futures mises à jour depuis l'export HTML.
 // Mettre à jour cette table si de nouvelles catégories apparaissent dans le fichier source.
 const familyMap = {
@@ -212,6 +217,11 @@ function isAchatOnly(prod) {
   return achatOnlyCategories.has(prod.Categorie)
     || achatOnlyProducts.has(prod.Produit.toLowerCase())
     || ((prod.Loc36 || 0) === 0 && (prod.Loc60 || 0) === 0);
+}
+
+function isHiddenByName(prod) {
+  const name = prod.Produit.toLowerCase();
+  return hiddenPatterns.some(p => name.includes(p));
 }
 
 function slugify(text) {
@@ -413,7 +423,7 @@ function updateTotals() {
     document.getElementById(`install-${prod.id}`).innerText = euros(installLine);
 
     const matchesSearch = prod.Produit.toLowerCase().includes(searchTerm.toLowerCase());
-    const visible = matchesSearch && ((!onlySelected || qty > 0 || searchActive) && (!hideEmpty || price > 0 || searchActive));
+    const visible = matchesSearch && ((!onlySelected || qty > 0 || searchActive) && (!hideEmpty || price > 0 || searchActive)) && !isHiddenByName(prod);
     if (!visible) lignesMasquees += 1;
     row.style.display = visible ? "" : "none";
     row.classList.toggle("opacity-50", qty === 0 || price === 0);
@@ -554,7 +564,7 @@ function exportOffer() {
   const rows = produits
     .map(prod => {
       const qty = quantities[prod.id] || 0;
-      if (qty <= 0) return null;
+      if (qty <= 0 || isHiddenByName(prod)) return null;
       const { price, discount } = computePrice(prod);
       const totalLine = price * qty;
       const installLine = (prod.Install || 0) * qty;
