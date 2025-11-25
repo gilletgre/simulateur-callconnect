@@ -111,10 +111,10 @@
               <span class="text-slate-300 text-sm">Total mensuel</span>
               <span class="text-xl font-semibold text-white" id="total-mensuel">0,00 €</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-slate-300 text-sm">Total installation</span>
-              <span class="text-xl font-semibold text-white" id="total-installation">0,00 €</span>
-            </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300 text-sm">Total frais uniques</span>
+            <span class="text-xl font-semibold text-white" id="total-installation">0,00 €</span>
+          </div>
           <div class="flex items-center justify-between">
             <span class="text-slate-300 text-sm">Remises postes/licences (%)</span>
             <span class="text-lg font-semibold text-emerald-400" id="total-remises">0,00 €</span>
@@ -669,7 +669,7 @@ function exportOffer() {
 
   html += `<table><tfoot>
     <tr><td>Total mensuel</td><td style="text-align:right;">${euros(totalMensuel)}</td></tr>
-    <tr><td>Total installation</td><td style="text-align:right;">${euros(installNet)} (remise ${euros(remiseInstallValue)})</td></tr>
+    <tr><td>Total frais uniques</td><td style="text-align:right;">${euros(installNet)} (remise ${euros(remiseInstallValue)})</td></tr>
   </tfoot></table>`;
 
   html += "</body></html>";
