@@ -45,7 +45,6 @@
       <div class="absolute inset-0 flex flex-col justify-center px-8 py-6 space-y-3">
         <p class="tag bg-slate-800 text-sky-200 border border-slate-700 w-fit">Vue simulateur</p>
         <h2 class="text-2xl font-bold text-white">Configurez, appliquez les remises, exportez</h2>
-        <p class="text-slate-300 max-w-3xl">Sélection rapide, filtres visuels, export HTML prêt à partager.</p>
       </div>
     </section>
 
@@ -277,16 +276,6 @@ function renderGroupedTable() {
       }
       section.querySelector(".cat-body").classList.toggle("hidden");
       section.querySelector(".toggle-cat").innerText = collapsedCategories.has(cat) ? "▶" : "▼";
-    });
-    section.addEventListener("mouseenter", () => {
-      section.querySelector(".cat-body").classList.remove("hidden");
-      section.querySelector(".toggle-cat").innerText = "▼";
-    });
-    section.addEventListener("mouseleave", () => {
-      if (collapsedCategories.has(cat) && !searchActive) {
-        section.querySelector(".cat-body").classList.add("hidden");
-        section.querySelector(".toggle-cat").innerText = "▶";
-      }
     });
   });
   bindQuantityInputs();
