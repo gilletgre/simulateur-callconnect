@@ -132,6 +132,17 @@ const deviceCategories = new Set([
   "Call Connect End Points",
   "Call Connect End Points - DECT"
 ]);
+const achatOnlyCategories = new Set([
+  "Headset",
+  "Headset Accessoires",
+  "UTP Cables",
+  "Rack",
+  "Installation material",
+  "Parlophones",
+  "Interface",
+  "UPS",
+  "Elévateur "
+]);
 
 function euros(value) {
   return value.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
@@ -164,15 +175,15 @@ function computeSubcategory(prod) {
 
 function computePrice(prod) {
   let base = 0;
-  if (regime === "achat") {
-    base = prod.Achat || prod.Loc36 || prod.Loc60 || prod.AT;
-  } else if (regime === "achat_at") {
-    base = (prod.Achat || 0) + (prod.AT || 0);
-    if (base === 0) base = prod.Loc36 || prod.Loc60 || prod.Achat || prod.AT;
+  const achatAT = (prod.Achat || 0) + (prod.AT || 0);
+  const achatOnly = achatOnlyCategories.has(prod.Categorie);
+
+  if (achatOnly || regime === "achat" || regime === "achat_at") {
+    base = achatAT || prod.Loc36 || prod.Loc60 || prod.Achat || prod.AT;
   } else if (regime === "loc36") {
-    base = prod.Loc36 || prod.Loc60 || prod.Achat || prod.AT;
+    base = prod.Loc36 && prod.Loc36 > 0 ? prod.Loc36 : achatAT;
   } else {
-    base = prod.Loc60 || prod.Loc36 || prod.Achat || prod.AT;
+    base = prod.Loc60 && prod.Loc60 > 0 ? prod.Loc60 : achatAT;
   }
 
   let discount = 0;
