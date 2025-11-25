@@ -166,6 +166,9 @@ const achatOnlyCategories = new Set([
   "UPS",
   "Elévateur "
 ]);
+const achatOnlyProducts = new Set([
+  "pabx - on site training (2h)"
+]);
 // Mapping produit -> famille pour le rendu et pour d'éventuelles futures mises à jour depuis l'export HTML.
 // Mettre à jour cette table si de nouvelles catégories apparaissent dans le fichier source.
 const familyMap = {
@@ -206,7 +209,9 @@ function isPoste(prod) {
 }
 
 function isAchatOnly(prod) {
-  return achatOnlyCategories.has(prod.Categorie) || ((prod.Loc36 || 0) === 0 && (prod.Loc60 || 0) === 0);
+  return achatOnlyCategories.has(prod.Categorie)
+    || achatOnlyProducts.has(prod.Produit.toLowerCase())
+    || ((prod.Loc36 || 0) === 0 && (prod.Loc60 || 0) === 0);
 }
 
 function slugify(text) {
