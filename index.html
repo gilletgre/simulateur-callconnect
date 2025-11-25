@@ -146,7 +146,7 @@ let remiseLicences = 0;
 let onlySelected = false;
 let hideEmpty = false;
 let searchTerm = "";
-const collapsedCategories = new Set();
+const collapsedFamilies = new Set();
 
 const deviceCategories = new Set([
   "Devices",
@@ -166,6 +166,32 @@ const achatOnlyCategories = new Set([
   "UPS",
   "Elévateur "
 ]);
+// Mapping produit -> famille pour le rendu et pour d'éventuelles futures mises à jour depuis l'export HTML.
+// Mettre à jour cette table si de nouvelles catégories apparaissent dans le fichier source.
+const familyMap = {
+  "Devices": "Endpoints",
+  "Call Connect End Points": "Endpoints",
+  "DECT": "DECT & Accessoires",
+  "Call Connect End Points - DECT": "DECT & Accessoires",
+  "DECT Accessoires": "DECT & Accessoires",
+  "Headset": "Audio & Casques",
+  "Headset Accessoires": "Audio & Casques",
+  "Licences utilisateurs": "Licences",
+  "Voicemail 10 individual Licences": "Voicemail",
+  "Voicemail for IVR/Group Licences": "Voicemail",
+  "CTI": "Intégrations",
+  "Alert": "Alertes",
+  "Parlophones": "Parlophones",
+  "Installation material": "Infra & Matériel",
+  "UTP Cables": "Infra & Matériel",
+  "Rack": "Infra & Matériel",
+  "UPS": "Infra & Matériel",
+  "Elévateur ": "Infra & Matériel",
+  "Interface": "Infra & Matériel",
+  "SLA": "Services",
+  "Service d'Operation": "Services",
+  "Multi-site coordinator price PER SITE": "Services"
+};
 
 function euros(value) {
   return value.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
@@ -187,34 +213,40 @@ function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
+function getFamily(prod) {
+  return familyMap[prod.Categorie] || "Autres";
+}
+
 function categoryIcon(cat) {
   const svg = (path) =>
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">${path}</svg>`;
   const icons = {
-    "Devices": svg('<path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm2 0v9h12V5H6Zm4 13h4a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1Z"/>'),
-    "DECT": svg('<path d="M12 3a7 7 0 0 1 7 7c0 2.61-1.4 4.88-3.5 6.12V19a1 1 0 0 1-1 1h-1v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1H9a1 1 0 0 1-1-1v-2.88A6.98 6.98 0 0 1 5 10a7 7 0 0 1 7-7Zm0 2a5 5 0 0 0-5 5c0 1.87 1.02 3.51 2.5 4.39V18h5v-3.61A5.01 5.01 0 0 0 17 10a5 5 0 0 0-5-5Z"/>'),
-    "DECT Accessoires": svg('<path d="M6 5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3h1a1 1 0 1 1 0 2h-1v4a2 2 0 0 1-2 2h-2l1 2a1 1 0 0 1-1.8.8L11 16H8a2 2 0 0 1-2-2V5Zm2 0v9h8V5H8Z"/>'),
-    "Call Connect End Points": svg('<path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v2a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V4Zm2 0v16h6V4H9Zm8 4v6h1V8h-1Z"/>'),
-    "Call Connect End Points - DECT": svg('<path d="M8 4a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3V4Zm3-1a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-2Z"/>'),
-    "Headset": svg('<path d="M12 3a7 7 0 0 0-7 7v2a2 2 0 0 0 2 2h1v3a1 1 0 0 0 1 1h3v-3h2v3h3a1 1 0 0 0 1-1v-3h1a2 2 0 0 0 2-2v-2a7 7 0 0 0-7-7Zm-5 7a5 5 0 1 1 10 0v2h-1V9a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v5H8V9a1 1 0 0 0-1-1H5v2Z"/>'),
-    "Headset Accessoires": svg('<path d="M5 5a2 2 0 0 1 2-2h6a3 3 0 0 1 0 6H9v3h3a1 1 0 1 1 0 2H9v2a1 1 0 1 1-2 0V5Zm2 0v2h6a1 1 0 1 0 0-2H7Z"/>'),
-    "UTP Cables": svg('<path d="M4 7a3 3 0 0 1 3-3h2v3h2V4h2a3 3 0 0 1 3 3v2h-5v2h5v2a3 3 0 0 1-3 3h-2v-3h-2v3H7a3 3 0 0 1-3-3V7Zm3-1a1 1 0 0 0-1 1v2h2V6H7Zm7 0h-1v3h2V7a1 1 0 0 0-1-1Z"/>'),
-    "Rack": svg('<path d="M6 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16h-2v-2H8v2H6V4Zm2 0v3h8V4H8Zm0 5v3h8V9H8Zm0 5v2h8v-2H8Z"/>'),
-    "Installation material": svg('<path d="M4 6a2 2 0 0 1 2-2h5v3h2V4h3a2 2 0 0 1 2 2v5h-3V9h-2v2h-2V9H9v2H6V6Zm0 6h3v8H6a2 2 0 0 1-2-2v-6Zm5 0h2v8H9v-8Zm4 0h2v8h-2v-8Z"/>'),
+    "Endpoints": svg('<path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm2 0v9h12V5H6Zm4 13h4a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1Z"/>'),
+    "DECT & Accessoires": svg('<path d="M12 3a7 7 0 0 1 7 7c0 2.61-1.4 4.88-3.5 6.12V19a1 1 0 0 1-1 1h-1v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1H9a1 1 0 0 1-1-1v-2.88A6.98 6.98 0 0 1 5 10a7 7 0 0 1 7-7Zm0 2a5 5 0 0 0-5 5c0 1.87 1.02 3.51 2.5 4.39V18h5v-3.61A5.01 5.01 0 0 0 17 10a5 5 0 0 0-5-5Z"/>'),
+    "Audio & Casques": svg('<path d="M12 3a7 7 0 0 0-7 7v2a2 2 0 0 0 2 2h1v3a1 1 0 0 0 1 1h3v-3h2v3h3a1 1 0 0 0 1-1v-3h1a2 2 0 0 0 2-2v-2a7 7 0 0 0-7-7Zm-5 7a5 5 0 1 1 10 0v2h-1V9a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v5H8V9a1 1 0 0 0-1-1H5v2Z"/>'),
+    "Licences": svg('<path d="M9 6a3 3 0 1 1 6 0v2a3 3 0 1 1-6 0V6Zm-4 9a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v4H5v-4Zm4 0a2 2 0 0 0-2 2v2h10v-2a2 2 0 0 0-2-2H9Z"/>'),
+    "Voicemail": svg('<path d="M7 7a3 3 0 1 1 6 0v1a3 3 0 1 1-6 0V7Zm8 0a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0V7ZM3 7a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0V7Zm-1 8a4 4 0 0 1 4-4h6a4 4 0 0 1 0 6H8a4 4 0 0 1-4-4Zm4-1a2 2 0 0 0-2 2v2h10v-2a2 2 0 0 0-2-2H8Z"/>'),
+    "Intégrations": svg('<path d="M7 5a3 3 0 0 1 3-3h4a3 3 0 0 1 0 6h-4a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-4ZM5 15a3 3 0 0 1 3-3h4a3 3 0 0 1 0 6H8a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2H8Z"/>'),
+    "Alertes": svg('<path d="M11.1 3.38a1 1 0 0 1 1.8 0l7 14A1 1 0 0 1 19 19H5a1 1 0 0 1-.9-1.62l7-14ZM12 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0-4a1 1 0 0 0 1-1V8a1 1 0 1 0-2 0v3a1 1 0 0 0 1 1Z"/>'),
     "Parlophones": svg('<path d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3Zm2 1v2h4V4h-4Zm0 4v2h4V8h-4Zm0 4v2h4v-2h-4Zm2 4a1 1 0 1 0 0 2h0a1 1 0 0 0 0-2Z"/>'),
-    "Interface": svg('<path d="M7 5a3 3 0 0 1 3-3h4a3 3 0 0 1 0 6h-4a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-4ZM5 15a3 3 0 0 1 3-3h4a3 3 0 0 1 0 6H8a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2H8Z"/>'),
-    "UPS": svg('<path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16h-2v-3H9v3H7V4Zm2 0v11h6V4H9Zm1 3h4v2h-4V7Zm0 3h2v2h-2v-2Z"/>'),
-    "Elévateur ": svg('<path d="M6 5a2 2 0 0 1 2-2h4l2 3h4a1 1 0 1 1 0 2h-3l-2 3h-3l-2-3H6v9h2v-2a1 1 0 1 1 2 0v2h6v-2a1 1 0 1 1 2 0v2h1a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1V5Z"/>'),
-    "Licences utilisateurs": svg('<path d="M9 6a3 3 0 1 1 6 0v2a3 3 0 1 1-6 0V6Zm-4 9a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v4H5v-4Zm4 0a2 2 0 0 0-2 2v2h10v-2a2 2 0 0 0-2-2H9Z"/>'),
-    "Voicemail for IVR/Group Licences": svg('<path d="M7 7a3 3 0 1 1 6 0v1a3 3 0 1 1-6 0V7Zm8 0a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0V7ZM3 7a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0V7Zm-1 8a4 4 0 0 1 4-4h6a4 4 0 0 1 0 6H8a4 4 0 0 1-4-4Zm4-1a2 2 0 0 0-2 2v2h10v-2a2 2 0 0 0-2-2H8Z"/>'),
-    "Voicemail 10 individual Licences": svg('<path d="M6 6a3 3 0 1 1 6 0v1a3 3 0 1 1-6 0V6Zm8 0a2 2 0 1 1 4 0v1a2 2 0 1 1-4 0V6ZM4 14a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v3H4v-3Zm4-1a2 2 0 0 0-2 2v2h9v-2a2 2 0 0 0-2-2H8Z"/>'),
-    "Alert": svg('<path d="M11.1 3.38a1 1 0 0 1 1.8 0l7 14A1 1 0 0 1 19 19H5a1 1 0 0 1-.9-1.62l7-14ZM12 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0-4a1 1 0 0 0 1-1V8a1 1 0 1 0-2 0v3a1 1 0 0 0 1 1Z"/>'),
-    "SLA": svg('<path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8.5l-3.25-1.63a1 1 0 0 0-.9 0L12 13l-2.85-1.13a1 1 0 0 0-.9 0L5 13.5V5Zm0 12.2 4.45-2.23L12 15l2.55-.03L19 17.2V19H5v-1.8Z"/>'),
+    "Infra & Matériel": svg('<path d="M4 6a2 2 0 0 1 2-2h5v3h2V4h3a2 2 0 0 1 2 2v5h-3V9h-2v2h-2V9H9v2H6V6Zm0 6h3v8H6a2 2 0 0 1-2-2v-6Zm5 0h2v8H9v-8Zm4 0h2v8h-2v-8Z"/>'),
+    "Services": svg('<path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8.5l-3.25-1.63a1 1 0 0 0-.9 0L12 13l-2.85-1.13a1 1 0 0 0-.9 0L5 13.5V5Zm0 12.2 4.45-2.23L12 15l2.55-.03L19 17.2V19H5v-1.8Z"/>'),
     "Autres": svg('<path d="M12 3 9 9l-6 .5 4.5 4-1.5 6 6-3.5 6 3.5-1.5-6 4.5-4-6-.5-3-6Z"/>')
   };
   return icons[cat] || svg('<path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Zm2 0v10h12V6H6Zm2 3h8v2H8V9Zm0 4h5v2H8v-2Z"/>');
 }
-
+function computeSubcategory(prod) {
+    if (prod.Categorie !== "Autres") return prod.Categorie;
+    const name = prod.Produit.toLowerCase();
+    if (name.includes("license call connect pack")) return "Packs licences";
+    if (name.includes("license call connect")) return "Licences et options";
+    if (name.includes("plantronics") || name.includes("poly") || name.includes("headset")) return "Casques / audio";
+    if (name.includes("switch") || name.includes("huawei")) return "Réseau / switch";
+    if (name.includes("doorphone") || name.includes("portier")) return "Parlophones / portiers";
+    if (name.includes("internet") || name.includes("explore") || name.includes("fiber")) return "Connectivité";
+    if (name.includes("cabling") || name.includes("patch") || name.includes("vertical cabling")) return "Câblage / câblerie";
+    return "Divers Autres";
+}
 function computeSubcategory(prod) {
   if (prod.Categorie !== "Autres") return prod.Categorie;
   const name = prod.Produit.toLowerCase();
@@ -252,58 +284,59 @@ function renderGroupedTable() {
   const container = document.getElementById("product-wrapper");
   container.innerHTML = "";
   const searchActive = searchTerm.trim().length > 0;
-  const categories = [...new Set(produits.map(p => p.Categorie))].sort();
-  if (collapsedCategories.size === 0) {
-    categories.forEach(cat => collapsedCategories.add(cat));
-  }
 
-  categories.forEach(cat => {
+  const families = {};
+  produits.forEach(prod => {
+    const fam = getFamily(prod);
+    families[fam] = families[fam] || [];
+    families[fam].push(prod);
+  });
+
+  const famNames = Object.keys(families).sort();
+  if (collapsedFamilies.size === 0) famNames.forEach(f => collapsedFamilies.add(f));
+
+  famNames.forEach(fam => {
+    const isCollapsed = collapsedFamilies.has(fam) && !searchActive;
     const section = document.createElement("section");
     section.className = "rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-lg shadow-slate-900/50";
-    section.dataset.cat = cat;
-    const isCollapsed = collapsedCategories.has(cat) && !searchActive;
+    section.dataset.family = fam;
     section.innerHTML = `
       <div class="flex items-center justify-between px-4 py-3 bg-slate-900/80 border-b border-slate-800">
         <div>
-          <p class="text-xs uppercase tracking-wide text-slate-500">Catégorie</p>
-          <h2 class="text-lg font-semibold text-white flex items-center gap-2"><span class="w-5 h-5 inline-flex items-center justify-center text-sky-300">${categoryIcon(cat)}</span><span>${cat}</span></h2>
+          <p class="text-xs uppercase tracking-wide text-slate-500">Famille</p>
+          <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+            <span class="w-5 h-5 inline-flex items-center justify-center text-sky-300">${categoryIcon(fam)}</span>
+            <span>${fam}</span>
+          </h2>
         </div>
-        <button class="toggle-cat text-slate-300 hover:text-white text-xl" aria-label="Basculer catégorie">${isCollapsed ? "▶" : "▼"}</button>
+        <button class="toggle-cat text-slate-300 hover:text-white text-xl" aria-label="Basculer famille">${isCollapsed ? "▶" : "▼"}</button>
       </div>
       <div class="cat-body ${isCollapsed ? "hidden" : ""}">
-        ${
-          cat === "Autres"
-            ? renderAutres(produits.filter(p => p.Categorie === cat))
-            : renderTable(cat, produits.filter(p => p.Categorie === cat))
-        }
+        ${renderFamilyTable(fam, families[fam])}
       </div>
     `;
     container.appendChild(section);
 
     section.querySelector(".toggle-cat").addEventListener("click", () => {
-      if (collapsedCategories.has(cat)) {
-        collapsedCategories.delete(cat);
-      } else {
-        collapsedCategories.add(cat);
-      }
+      if (collapsedFamilies.has(fam)) collapsedFamilies.delete(fam); else collapsedFamilies.add(fam);
       section.querySelector(".cat-body").classList.toggle("hidden");
-      section.querySelector(".toggle-cat").innerText = collapsedCategories.has(cat) ? "▶" : "▼";
+      section.querySelector(".toggle-cat").innerText = collapsedFamilies.has(fam) ? "▶" : "▼";
     });
   });
   bindQuantityInputs();
 }
 
-function renderTable(cat, list, mainCat = cat) {
-  const slug = slugify(cat);
+function renderFamilyTable(family, list) {
+  const slug = slugify(family);
   const rows = list.map(prod => {
     const qty = quantities[prod.id] || 0;
     const achatOnly = isAchatOnly(prod);
-    const priceLabel = achatOnly ? "Prix (achat)" : `Prix (${regime})`;
     return `
-      <tr id="row-${prod.id}" data-maincat="${mainCat}" data-subcat="${cat}" class="${qty > 0 ? "bg-slate-900/50" : ""}">
+      <tr id="row-${prod.id}" data-family="${family}" class="${qty > 0 ? "row-active" : ""}">
         <td class="px-4 py-2 align-top">
           <div class="font-medium text-white">${prod.Produit}</div>
           <div class="text-xs text-slate-500 flex gap-2 mt-1">
+            <span class="tag bg-slate-800 text-slate-200 border border-slate-700">${prod.Categorie}</span>
             ${isPoste(prod) ? '<span class="tag bg-slate-800 text-sky-200 border border-slate-700">Poste</span>' : ""}
             ${isStandardLicence(prod) ? '<span class="tag bg-slate-800 text-amber-200 border border-slate-700">Licence standard</span>' : ""}
           </div>
@@ -325,8 +358,7 @@ function renderTable(cat, list, mainCat = cat) {
     `;
   }).join("");
 
-  // return full table markup
-  const markup = `
+  return `
     <table class="w-full text-sm">
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
@@ -342,139 +374,7 @@ function renderTable(cat, list, mainCat = cat) {
       </tbody>
     </table>
   `;
-  return markup;
 }
-
-function renderAutres(list) {
-  const grouped = {};
-  list.forEach(prod => {
-    const sub = computeSubcategory(prod);
-    grouped[sub] = grouped[sub] || [];
-    grouped[sub].push(prod);
-  });
-  return Object.keys(grouped).sort().map(sub => {
-    return `
-      <div class="border-t border-slate-800">
-        <div class="px-4 py-3 bg-slate-900/70">
-          <p class="text-xs uppercase tracking-wide text-slate-500">Sous-catégorie</p>
-          <h3 class="text-md font-semibold text-white">${sub}</h3>
-        </div>
-        ${renderTable(sub, grouped[sub], "Autres")}
-      </div>
-    `;
-  }).join("");
-}
-
-function bindQuantityInputs() {
-  document.querySelectorAll("input[id^='qty-']").forEach(input => {
-    input.addEventListener("input", (e) => {
-      const id = e.target.id.replace("qty-", "");
-      quantities[id] = parseInt(e.target.value || "0");
-      updateTotals();
-    });
-  });
-}
-
-function renderActiveSummary(activeRows) {
-  const wrapper = document.getElementById("offer-summary");
-  const list = document.getElementById("offer-list");
-  if (!wrapper || !list) return;
-
-  if (!activeRows.length) {
-    wrapper.classList.add("hidden");
-    list.innerHTML = "";
-    return;
-  }
-  wrapper.classList.remove("hidden");
-  list.innerHTML = activeRows
-    .map(({ prod, qty, totalLine }) => `
-      <div class="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 flex items-center gap-3 shadow">
-        <div class="text-xs text-slate-500">${prod.Categorie}</div>
-        <div class="text-sm text-white font-medium">${prod.Produit}</div>
-        <span class="text-xs text-slate-400">x${qty}</span>
-        <span class="text-sm font-semibold text-sky-200 ml-auto">${euros(totalLine)}</span>
-      </div>
-    `)
-    .join("");
-}
-
-function exportOffer() {
-  const rows = produits
-    .map(prod => {
-      const qty = quantities[prod.id] || 0;
-      if (qty <= 0) return null;
-      const { price, discount } = computePrice(prod);
-      const totalLine = price * qty;
-      const installLine = (prod.Install || 0) * qty;
-      return { ...prod, qty, price, discount, totalLine, installLine };
-    })
-    .filter(Boolean);
-
-  if (!rows.length) {
-    alert("Aucune ligne active à exporter.");
-    return;
-  }
-
-  const byCat = {};
-  rows.forEach(r => {
-    const cat = r.Categorie || "Autres";
-    byCat[cat] = byCat[cat] || [];
-    byCat[cat].push(r);
-  });
-
-  let html = `
-    <html><head><meta charset="utf-8"><title>Offre Call Connect</title>
-    <style>
-      body { font-family: Arial, sans-serif; color: #0f172a; padding: 24px; }
-      h1 { margin: 0 0 12px 0; }
-      h2 { margin: 16px 0 8px 0; }
-      table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
-      th, td { border: 1px solid #cbd5e1; padding: 8px; font-size: 12px; }
-      th { background: #e2e8f0; text-align: left; }
-      tfoot td { font-weight: bold; }
-    </style></head><body>
-    <h1>Offre Call Connect</h1>
-    <p>Régime : ${regime} | Remise postes ${remisePostes}% | Remise licences ${remiseLicences}% | Remise installation ${remiseInstall}%</p>
-  `;
-
-  Object.keys(byCat).sort().forEach(cat => {
-    html += `<h2>${cat}</h2><table><thead><tr>
-      <th>Produit</th><th>Prix unitaire</th><th>Remise</th><th>Qté</th><th>Total mensuel</th><th>Installation</th>
-    </tr></thead><tbody>`;
-    byCat[cat].forEach(r => {
-      html += `<tr>
-        <td>${r.Produit}</td>
-        <td style="text-align:right;">${euros(r.price)}</td>
-        <td style="text-align:right;">${r.discount ? "-" + r.discount + "%" : "-"}</td>
-        <td style="text-align:right;">${r.qty}</td>
-        <td style="text-align:right;">${euros(r.totalLine)}</td>
-        <td style="text-align:right;">${euros(r.installLine)}</td>
-      </tr>`;
-    });
-    html += "</tbody></table>";
-  });
-
-  const totalMensuel = rows.reduce((s, r) => s + r.totalLine, 0) + ((regime === "loc36" || regime === "loc60") ? 6 + (rows.reduce((s, r) => s + (isPoste(r) ? r.qty : 0), 0) * 0.5) : 0);
-  const totalInstall = rows.reduce((s, r) => s + r.installLine, 0);
-  const remiseInstallValue = totalInstall * (remiseInstall / 100);
-  const installNet = totalInstall - remiseInstallValue;
-
-  html += `<table><tfoot>
-    <tr><td>Total mensuel</td><td style="text-align:right;">${euros(totalMensuel)}</td></tr>
-    <tr><td>Total installation</td><td style="text-align:right;">${euros(installNet)} (remise ${euros(remiseInstallValue)})</td></tr>
-  </tfoot></table>`;
-
-  html += "</body></html>";
-
-  const win = window.open("", "_blank");
-  if (!win) {
-    alert("Pop-up bloqué : autorisez l'ouverture pour exporter.");
-    return;
-  }
-  win.document.write(html);
-  win.document.close();
-}
-
 function updateTotals() {
   let totalMensuel = 0;
   let totalInstall = 0;
@@ -482,7 +382,7 @@ function updateTotals() {
   let totalRemises = 0;
   let lignesActives = 0;
   let lignesMasquees = 0;
-  const visibleByCat = {};
+  const visibleByFamily = {};
   const searchActive = searchTerm.trim().length > 0;
   const activeRows = [];
 
@@ -515,8 +415,8 @@ function updateTotals() {
     row.classList.toggle("row-active", qty > 0);
 
     if (visible) {
-      const main = row.dataset.maincat || prod.Categorie;
-      visibleByCat[main] = (visibleByCat[main] || 0) + 1;
+      const fam = row.dataset.family || getFamily(prod);
+      visibleByFamily[fam] = (visibleByFamily[fam] || 0) + 1;
     }
 
     if (qty > 0) {
@@ -529,17 +429,17 @@ function updateTotals() {
     }
   });
 
-  document.querySelectorAll("[data-cat]").forEach(section => {
-    const cat = section.dataset.cat;
+  document.querySelectorAll("[data-family]").forEach(section => {
+    const fam = section.dataset.family;
     const body = section.querySelector(".cat-body");
     if (!body) return;
-    const hasVisible = visibleByCat[cat] > 0 || (!onlySelected && !hideEmpty);
+    const hasVisible = visibleByFamily[fam] > 0 || (!onlySelected && !hideEmpty);
     section.style.display = hasVisible ? "" : "none";
-    if (searchActive && visibleByCat[cat] > 0) {
+    if (searchActive && visibleByFamily[fam] > 0) {
       body.classList.remove("hidden");
       const toggle = section.querySelector(".toggle-cat");
       if (toggle) toggle.innerText = "▼";
-    } else if (collapsedCategories.has(cat)) {
+    } else if (collapsedFamilies.has(fam)) {
       body.classList.add("hidden");
       const toggle = section.querySelector(".toggle-cat");
       if (toggle) toggle.innerText = "▶";
