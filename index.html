@@ -198,6 +198,12 @@ const locEligibleCategories = new Set([
   "Voicemail for IVR/Group Licences",
   "CTI"
 ]);
+const locEligibleNamePatterns = [
+  "switch",
+  "poe",
+  "router",
+  "gateway"
+];
 // Mapping produit -> famille pour le rendu et pour d'éventuelles futures mises à jour depuis l'export HTML.
 // Mettre à jour cette table si de nouvelles catégories apparaissent dans le fichier source.
 const familyMap = {
@@ -249,7 +255,9 @@ function isHiddenByName(prod) {
 }
 
 function isLocEligible(prod) {
-  return locEligibleCategories.has(prod.Categorie);
+  const name = prod.Produit.toLowerCase();
+  if (locEligibleCategories.has(prod.Categorie)) return true;
+  return locEligibleNamePatterns.some(p => name.includes(p));
 }
 
 function slugify(text) {
