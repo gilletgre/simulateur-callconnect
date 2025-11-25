@@ -454,9 +454,15 @@ function updateTotals() {
     const { price, base, discount, achatOnly, locEligible } = computePrice(prod);
     let totalLine = price * qty;
     let installLine = (prod.Install || 0) * qty;
-    if ((regime === "loc36" || regime === "loc60") && (achatOnly || !locEligible)) {
-      totalLine = 0;
-      installLine += price * qty;
+    if (regime === "loc36" || regime === "loc60") {
+      if (achatOnly || !locEligible) {
+        // Achat-only en loc : rien en mensuel, tout en frais uniques
+        totalLine = 0;
+        installLine += price * qty;
+      } else {
+        // Produit loc éligible : pas de frais d'installation
+        installLine = 0;
+      }
     }
 
     if (isPoste(prod)) deviceQty += qty;
@@ -613,10 +619,18 @@ function exportOffer() {
     .map(prod => {
       const qty = quantities[prod.id] || 0;
       if (qty <= 0 || isHiddenByName(prod)) return null;
-      const { price, discount } = computePrice(prod);
-      const totalLine = price * qty;
-      const installLine = (prod.Install || 0) * qty;
-      return { ...prod, qty, price, discount, totalLine, installLine };
+      const { price, discount, achatOnly, locEligible } = computePrice(prod);
+      let totalLine = price * qty;
+      let installLine = (prod.Install || 0) * qty;
+      if (regime === "loc36" || regime === "loc60") {
+        if (achatOnly || !locEligible) {
+          totalLine = 0;
+          installLine += price * qty;
+        } else {
+          installLine = 0;
+        }
+      }
+      return { ...prod, qty, price, discount, totalLine, installLine, achatOnly, locEligible };
     })
     .filter(Boolean);
 
