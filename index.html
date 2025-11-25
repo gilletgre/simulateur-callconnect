@@ -352,8 +352,14 @@ function computePrice(prod) {
   const achatOnly = isAchatOnly(prod);
   const locEligible = isLocEligible(prod);
 
-  if (achatOnly || !locEligible || regime === "achat" || regime === "achat_at") {
-    base = achatAT || prod.Loc36 || prod.Loc60 || prod.Achat || prod.AT;
+  if (regime === "achat" || regime === "achat_at") {
+    base = achatAT;
+    // Si aucun prix achat mais qu'on a un tarif loc et que le produit n'est pas achat-only, on retombe sur le loc
+    if (base === 0 && !achatOnly && locEligible) {
+      base = prod.Loc36 || prod.Loc60 || achatAT;
+    }
+    // Dernier recours : au moins achat+AT
+    if (base === 0) base = achatAT;
   } else if (regime === "loc36") {
     base = prod.Loc36 && prod.Loc36 > 0 ? prod.Loc36 : achatAT;
   } else {
