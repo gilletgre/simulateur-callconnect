@@ -188,7 +188,8 @@ const hiddenPatterns = [
   "unlimited calls national",
   "closed user group voip call connect"
 ];
-const alwaysMonthlyCategories = new Set([
+// Toujours facturés en location quel que soit le régime (licences, CTI, group licences)
+const alwaysLocationCategories = new Set([
   "Licences utilisateurs",
   "Voicemail 10 individual Licences",
   "Voicemail for IVR/Group Licences",
@@ -352,26 +353,54 @@ function computeSubcategory(prod) {
   return "Divers Autres";
 }
 
+function isAlwaysLocation(prod) {
+  return alwaysLocationCategories.has(prod.Categorie);
+}
+
+function pickLocationPrice(prod) {
+  const fallback = prod.Loc36 || prod.Loc60 || 0;
+  if (regime === "loc36") return prod.Loc36 || fallback;
+  if (regime === "loc60") return prod.Loc60 || fallback;
+  return fallback;
+}
+
 function computePrice(prod) {
   let base = 0;
-  const achatAT = (prod.Achat || 0) + (prod.AT || 0);
   const achatOnly = isAchatOnly(prod);
   const locEligible = isLocEligible(prod);
-  const monthlyOnly = alwaysMonthlyCategories.has(prod.Categorie);
+  const alwaysLocation = isAlwaysLocation(prod);
+  const achat = prod.Achat || 0;
+  const achatAT = achat + (prod.AT || 0);
+  const locPrice = pickLocationPrice(prod);
+  let billing = "one_time"; // one_time = frais uniques, monthly = récurrent
 
-  if (regime === "achat" || regime === "achat_at") {
-    base = achatAT; // pas de fallback sur loc en régime achat
-  } else if (regime === "loc36") {
-    base = prod.Loc36 && prod.Loc36 > 0 ? prod.Loc36 : 0;
+  if (alwaysLocation) {
+    base = locPrice;
+    billing = "monthly";
+  } else if (regime === "achat_at") {
+    base = achatAT;
+  } else if (regime === "achat") {
+    base = achat;
+    if (!base && locPrice && !achatOnly) {
+      // Produit non achetable mais disponible en location : on reste en mensuel
+      base = locPrice;
+      billing = "monthly";
+    }
   } else {
-    base = prod.Loc60 && prod.Loc60 > 0 ? prod.Loc60 : 0;
+    // Régimes location : loc si disponible, sinon on facture l'achat en une fois
+    if (locEligible && locPrice) {
+      base = locPrice;
+      billing = "monthly";
+    } else {
+      base = achat;
+    }
   }
 
   let discount = 0;
   if (isPoste(prod)) discount = Math.max(discount, remisePostes);
   if (isStandardLicence(prod)) discount = Math.max(discount, remiseLicences);
   const price = base * (1 - discount / 100);
-  return { price, base, discount, achatOnly, locEligible, monthlyOnly };
+  return { price, base, discount, billing };
 }
 
 function renderGroupedTable() {
@@ -486,26 +515,18 @@ function updateTotals() {
     if (!qtyInput || !row) return;
     const qty = parseInt(qtyInput.value || "0");
     quantities[prod.id] = qty;
-    const { price, base, discount, achatOnly, locEligible, monthlyOnly } = computePrice(prod);
-    let totalLine = price * qty;
-    let installLine = (prod.Install || 0) * qty;
-    if (regime === "achat" || regime === "achat_at") {
-      if (monthlyOnly && locEligible) {
-        // reste mensuel, pas d'installation
-        installLine = 0;
-      } else {
-        totalLine = 0;
-        // si prix achat absent, rien n'est compté
-        installLine = price > 0 ? installLine + price * qty : installLine;
-      }
-    } else if (regime === "loc36" || regime === "loc60") {
-      if (achatOnly || !locEligible) {
-        totalLine = 0;
-        installLine = 0;
-      } else {
-        // Produit loc éligible : pas de frais d'installation
-        installLine = 0;
-      }
+    const { price, base, discount, billing } = computePrice(prod);
+    const installBase = (prod.Install || 0) * qty;
+    let totalLine = 0;
+    let installLine = 0;
+
+    if (billing === "monthly") {
+      totalLine = price * qty;
+      installLine = 0;
+    } else {
+      // Achat (avec ou sans AT) ou produit non louable en régime loc
+      totalLine = 0;
+      installLine = (price > 0 ? price * qty : 0) + installBase;
     }
 
     if (isPoste(prod)) deviceQty += qty;
@@ -667,23 +688,20 @@ function exportOffer() {
     .map(prod => {
       const qty = quantities[prod.id] || 0;
       if (qty <= 0 || isHiddenByName(prod)) return null;
-      const { price, discount, achatOnly, locEligible } = computePrice(prod);
-    let totalLine = price * qty;
-    let installLine = (prod.Install || 0) * qty;
-    let achatUnique = 0;
-    if (regime === "achat" || regime === "achat_at") {
-      // En achat : rien en mensuel, tout en frais uniques (achat + install)
-      totalLine = 0;
-      installLine += price * qty;
-    } else if (regime === "loc36" || regime === "loc60") {
-      if (achatOnly || !locEligible) {
-        totalLine = 0;
-        achatUnique = price * qty;
+      const { price, discount, billing } = computePrice(prod);
+      let totalLine = 0;
+      let installLine = 0;
+      let achatUnique = 0;
+      const installBase = (prod.Install || 0) * qty;
+
+      if (billing === "monthly") {
+        totalLine = price * qty;
       } else {
-        installLine = 0;
-        }
+        achatUnique = price * qty;
+        installLine = installBase;
       }
-      return { ...prod, qty, price, discount, totalLine, installLine, achatUnique, achatOnly, locEligible };
+
+      return { ...prod, qty, price, discount, totalLine, installLine, achatUnique };
     })
     .filter(Boolean);
 
