@@ -497,7 +497,7 @@ function renderFamilyTable(family, list) {
           <div id="alt-${prod.id}" class="text-[11px] text-slate-500 mt-0.5"></div>
         </td>
         <td class="px-4 py-2 text-right col-qte">
-          <input type="number" min="0" value="${qty}" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
+          <input type="number" min="0" value="${qty > 0 ? qty : ""}" placeholder="0" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
         </td>
         <td class="px-4 py-2 text-right col-total">
           <div id="total-${prod.id}" class="font-semibold text-slate-100">-</div>
@@ -558,7 +558,7 @@ function updateTotals() {
     totalRemises += (monthlyBase - monthly) * qty + (upfrontBase - upfront) * qty;
     if (qty > 0) lignesActives += 1;
 
-    const suffix = billing === "monthly" ? "/mois" : "(achat" + (fallbackToAchat ? " - pas de loc" : "") + ")";
+    const suffix = billing === "monthly" ? "/mois" : "(achat" + (fallbackToAchat ? " - pas de loc possible" : "") + ")";
     document.getElementById(`prix-${prod.id}`).innerText = unitDisplay > 0 ? `${euros(unitDisplay)} ${suffix}` : "Non chiffré";
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
     const alt = ["achat", "achat_at", "loc60"]
@@ -569,7 +569,7 @@ function updateTotals() {
         const val = isMonthly ? m : u;
         if (!val) return null;
         const tag = r === regime ? " (sélectionné)" : "";
-        const mode = isMonthly ? "/mois" : `(achat${fb ? " - pas de loc" : ""})`;
+        const mode = isMonthly ? "/mois" : `(achat${fb ? " - pas de loc possible" : ""})`;
         return `${label}: ${euros(val)} ${mode}${tag}`;
       })
       .filter(Boolean)
