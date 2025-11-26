@@ -357,10 +357,11 @@ function isAlwaysLocation(prod) {
   return alwaysLocationCategories.has(prod.Categorie);
 }
 
-function pickLocationPrice(prod) {
+function pickLocationPrice(prod, regimeOverride) {
+  const r = regimeOverride || regime;
   const fallback = prod.Loc36 || prod.Loc60 || 0;
-  if (regime === "loc36") return prod.Loc36 || fallback;
-  if (regime === "loc60") return prod.Loc60 || fallback;
+  if (r === "loc36") return prod.Loc36 || fallback;
+  if (r === "loc60") return prod.Loc60 || fallback;
   return fallback;
 }
 
@@ -368,7 +369,7 @@ function computePrice(prod, regimeOverride) {
   const regimeToUse = regimeOverride || regime;
   const achat = prod.Achat || 0;
   const at = prod.AT || 0;
-  const locPrice = pickLocationPrice(prod);
+  const locPrice = pickLocationPrice(prod, regimeToUse);
   const alwaysLocation = isAlwaysLocation(prod);
   const locEligible = isLocEligible(prod);
   const achatOnly = isAchatOnly(prod);
