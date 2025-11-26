@@ -12,6 +12,7 @@
     }
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     .tag { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 999px; }
+    .col-product { width: 280px; }
     .col-price { width: 280px; text-align: right; }
     .col-upfront { width: 200px; text-align: right; }
     .col-discount { width: 140px; text-align: right; }
@@ -484,8 +485,8 @@ function renderFamilyTable(family, list) {
     const achatOnly = isAchatOnly(prod);
     return `
       <tr id="row-${prod.id}" data-family="${family}" class="${qty > 0 ? "row-active" : ""}">
-        <td class="px-4 py-2 align-top">
-          <div class="font-medium text-white">${prod.Produit}</div>
+        <td class="px-4 py-2 align-top col-product">
+          <div class="font-medium text-white leading-snug">${prod.Produit}</div>
           <div class="text-xs text-slate-500 flex gap-2 mt-1">
             <span class="tag bg-slate-800 text-slate-200 border border-slate-700">${prod.Categorie}</span>
             ${isPoste(prod) ? '<span class="tag bg-slate-800 text-sky-200 border border-slate-700">Poste</span>' : ""}
@@ -518,10 +519,10 @@ function renderFamilyTable(family, list) {
 
   return `
     <div class="overflow-x-auto">
-    <table class="w-full text-sm min-w-[1100px]">
+    <table class="w-full text-sm min-w-[1200px]">
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
-          <th class="text-left px-4 py-2">Produit</th>
+          <th class="text-left px-4 py-2 col-product">Produit</th>
           <th class="px-4 py-2 col-price">Prix (${regimeLabel(regime)})</th>
           <th class="px-4 py-2 col-discount">Remise (%)</th>
           <th class="px-4 py-2 col-qte">Qté</th>
