@@ -364,7 +364,8 @@ function pickLocationPrice(prod) {
   return fallback;
 }
 
-function computePrice(prod) {
+function computePrice(prod, regimeOverride) {
+  const regimeToUse = regimeOverride || regime;
   const achat = prod.Achat || 0;
   const at = prod.AT || 0;
   const locPrice = pickLocationPrice(prod);
@@ -379,14 +380,14 @@ function computePrice(prod) {
 
   if (alwaysLocation) {
     monthlyBase = locPrice;
-  } else if (regime === "achat") {
+  } else if (regimeToUse === "achat") {
     if (achat > 0 || achatOnly || !locPrice) {
       upfrontBase = achat;
     } else {
       // Produit uniquement louable : reste mensuel même en achat
       monthlyBase = locPrice;
     }
-  } else if (regime === "achat_at") {
+  } else if (regimeToUse === "achat_at") {
     upfrontBase = achat;
     monthlyBase = at;
     if (!achat && locEligible && locPrice && !achatOnly) {
@@ -476,6 +477,7 @@ function renderFamilyTable(family, list) {
         <td class="px-4 py-2 text-right">
           <div id="prix-${prod.id}" class="font-semibold text-slate-100">-</div>
           <div id="discount-${prod.id}" class="text-xs text-emerald-400"></div>
+          <div id="alt-${prod.id}" class="text-[11px] text-slate-500 mt-0.5"></div>
         </td>
         <td class="px-4 py-2 text-right col-qte">
           <input type="number" min="0" value="${qty}" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
@@ -541,6 +543,19 @@ function updateTotals() {
 
     document.getElementById(`prix-${prod.id}`).innerText = unitDisplay > 0 ? euros(unitDisplay) : "Non chiffré";
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
+    const alt = ["achat", "achat_at", "loc36", "loc60"]
+      .filter(r => r !== regime)
+      .map(r => {
+        const { monthly: m, upfront: u } = computePrice(prod, r);
+        const val = m > 0 ? m : u;
+        if (!val) return null;
+        const label = r === "achat" ? "Achat" : r === "achat_at" ? "Achat+AT" : r === "loc36" ? "Loc36" : "Loc60";
+        return `${label}: ${euros(val)}`;
+      })
+      .filter(Boolean)
+      .join(" · ");
+    const altNode = document.getElementById(`alt-${prod.id}`);
+    if (altNode) altNode.innerText = alt;
     document.getElementById(`total-${prod.id}`).innerText = euros(totalLine);
     document.getElementById(`install-${prod.id}`).innerText = euros(installLine);
 
