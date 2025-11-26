@@ -545,13 +545,12 @@ function updateTotals() {
     document.getElementById(`prix-${prod.id}`).innerText = unitDisplay > 0 ? euros(unitDisplay) : "Non chiffré";
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
     const alt = ["achat", "achat_at", "loc36", "loc60"]
-      .filter(r => r !== regime)
       .map(r => {
         const { monthly: m, upfront: u } = computePrice(prod, r);
         const val = m > 0 ? m : u;
         if (!val) return null;
-        const label = r === "achat" ? "Achat" : r === "achat_at" ? "Achat+AT" : r === "loc36" ? "Loc36" : "Loc60";
-        return `${label}: ${euros(val)}`;
+        const label = r === "achat" ? "Achat" : r === "achat_at" ? "AT" : r === "loc36" ? "Loc36" : "Loc60";
+        return `${label}: ${euros(val)}${r === regime ? " (sélectionné)" : ""}`;
       })
       .filter(Boolean)
       .join(" · ");
