@@ -1,0 +1,438 @@
+{
+  "headsets": [
+    {
+      "name": "Call Connect DECT Headset WH62 Dual",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/headset-wh62"
+    },
+    {
+      "name": "Call Connect Headset Adapter EHS40",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/accessories-ehs40"
+    },
+    {
+      "name": "Call Connect Wirelss Headst Adptr EHS36",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/ehs36"
+    },
+    {
+      "name": "Call Connect Headset Adapter EHS35",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/ehs35"
+    },
+    {
+      "name": "Call Connect BT Headset BH70",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/headset-bh70"
+    },
+    {
+      "name": "Call Connect BT Headset BH71 PRO",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/bh71"
+    },
+    {
+      "name": "Call Connect BT Headset BH76 plus",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/bh76"
+    },
+    {
+      "name": "Call Connect BT Headset BH72-LITE",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/bh72"
+    },
+    {
+      "name": "Call Connect BT Headset BH76",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/bh76"
+    },
+    {
+      "name": "Call Connect Headset UH36 Dual",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/usb-wired-headset-uh36"
+    },
+
+    {
+      "name": "Plantronics Head extens cable QD-QD 3m",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics Headset training cable (Y)",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Forum Headset adapter cable QD-Jack3,5mm",
+      "brand": "Forum",
+      "supplier": "FORUM",
+      "url": "https://www.forum.eu/"
+    },
+    {
+      "name": "Forum Headset adapter cable QD-RJ9 (U10)",
+      "brand": "Forum",
+      "supplier": "FORUM",
+      "url": "https://www.forum.eu/"
+    },
+    {
+      "name": "Plantronics Headset cable QD-RJ9(U10P)",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics adapter cable QD-RJ45(U10P)",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics DA80 USB/QD Adapter",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.tsrc.com/Poly-DA80-USB-to-QD-Headset-Adapter-p/8a7d8aa-n.htm"
+    },
+    {
+      "name": "Poly MO 300",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+
+    {
+      "name": "Plantronics Voyager 5200 UC",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly/headsets/bluetooth-headsets-and-earbuds/voyager-5200-uc.html"
+    },
+    {
+      "name": "Plantronics Voyager 4220 UC, USB-C",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics Voyager 4220 UC, USB-A",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics Voyager Legend",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+
+    {
+      "name": "Plantronics SupraPlus monaural VT",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics SupraPlus binaural VT",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics SupraPlus monaural NC",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics SupraPlus binaural NC",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+
+    {
+      "name": "Plantronics USB headset Blackwire C315",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics USB headset Blackwire C325",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics USB headset Blackwire C510",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics USB headset Blackwire C520",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+
+    {
+      "name": "Plantronics wireless USB headset Savi W440",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+
+    {
+      "name": "Plantronics EncorePro HW520",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics EncorePro Binaural HW720",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics EncorePro Monaural HW710",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics EncorePro HW540",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+
+    {
+      "name": "Plantronics Headset Cable Yealink",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+
+    {
+      "name": "Plantronics Blackwire 5210, USB-A",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/be-nl/products/accessories/product-details/2101953861"
+    },
+    {
+      "name": "Plantronics Blackwire 5220, USB-A",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    },
+    {
+      "name": "Plantronics Blackwire C7225 UC, USB-A",
+      "brand": "Poly (Plantronics)",
+      "supplier": "HP / Poly",
+      "url": "https://www.hp.com/us-en/poly.html"
+    }
+  ],
+
+  "dect": [
+    {
+      "name": "Call Connect IP Dect Handset W59R",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w59r"
+    },
+    {
+      "name": "Call Connect IP Dect Handset W73H",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w73h"
+    },
+    {
+      "name": "Call Connect IP Dect Handset W73H R&R",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w73h"
+    },
+    {
+      "name": "Call Connect IP Dect Set W73P (Base station + handset)",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w73p"
+    },
+    {
+      "name": "Call Connect IP Dect Set W73P R&R",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w73p"
+    },
+    {
+      "name": "Call Connect IP Dect Base W70B",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w70b"
+    },
+    {
+      "name": "Call Connect Dect Repeater RT30",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/rt30"
+    },
+    {
+      "name": "Call Connect MultiCell Dect W75B",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w75b"
+    },
+    {
+      "name": "Call Connect MultiCell Dect W80BMan",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w80b"
+    },
+    {
+      "name": "Call Connect IP Dect W59R Battery",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w59r"
+    },
+    {
+      "name": "Call Connect MultiCell Dect W80Base",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w80b"
+    },
+    {
+      "name": "Call Connect Conference Phone CP930W",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/cp930w"
+    },
+    {
+      "name": "Call Connect USB DECT dongle",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dd10k"
+    },
+    {
+      "name": "Call Connect IP Dect W73 Battery",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w73h"
+    },
+    {
+      "name": "Call Connect IP Dect W73H Belt clip",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w73h"
+    },
+    {
+      "name": "Call Connect IP Dect W59R Belt clip",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/dect-phone-w59r"
+    }
+  ],
+
+  "devices": [
+    {
+      "name": "Call Connect IP Phone 8861",
+      "brand": "Cisco",
+      "supplier": "Cisco",
+      "url": "https://www.cisco.com/c/en/us/products/collaboration-endpoints/ip-phone-8800-series/models-listing.html"
+    },
+    {
+      "name": "Call Connect IP Phone T33G",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/ip-phone-t33g"
+    },
+    {
+      "name": "Call Connect IP Phone T53",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/ip-phone-t53"
+    },
+    {
+      "name": "Call Connect IP Phone T53 R&R",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/ip-phone-t53"
+    },
+    {
+      "name": "Call Connect IP Phone T54W",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/ip-phone-t54w"
+    },
+    {
+      "name": "Call Connect IP Phone T57W",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/ip-phone-t57w"
+    },
+    {
+      "name": "Call Connect IP Phone T58W",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/t58w"
+    },
+    {
+      "name": "Call Connect IP Phone T64LTE",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/t64"
+    },
+    {
+      "name": "Call Connect Power Supply for Desk Phone",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-list/accessories"
+    },
+    {
+      "name": "Call Connect Camera for T58A/T58W",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/cam50"
+    },
+    {
+      "name": "Call Connect Exp. module for T5x",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/exp50"
+    },
+    {
+      "name": "Call Connect Wallmount for T48G/S",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-list/accessories"
+    },
+    {
+      "name": "Call Connect Wallmount for T5x",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-list/accessories"
+    },
+    {
+      "name": "Call Connect Speakerphone CP700",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/speakerphone-cp700"
+    },
+    {
+      "name": "Call Connect Speakerphone CP900",
+      "brand": "Yealink",
+      "supplier": "Yealink",
+      "url": "https://www.yealink.com/en/product-detail/speakerphone-cp900"
+    }
+  ]
+}

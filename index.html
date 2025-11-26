@@ -301,6 +301,10 @@ function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
+function normalizeName(text) {
+  return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 function getFamily(prod) {
   const name = prod.Produit.toLowerCase();
   if (name.includes("softphone installation")) return "Licences";
@@ -487,12 +491,14 @@ function renderFamilyTable(family, list) {
     return `
       <tr id="row-${prod.id}" data-family="${family}" class="${qty > 0 ? "row-active" : ""}">
         <td class="px-4 py-2 align-top col-product">
-          <div class="font-medium text-white leading-snug">${prod.Produit}</div>
-          <div class="text-xs text-slate-500 flex gap-2 mt-1">
+          <div class="font-medium text-white leading-snug">
+            ${prod.url ? `<a href="${prod.url}" target="_blank" class="text-sky-200 hover:text-sky-100 underline decoration-dotted">${prod.Produit}</a>` : prod.Produit}
+          </div>
+          <div class="text-xs text-slate-500 flex gap-2 mt-1 flex-wrap">
             <span class="tag bg-slate-800 text-slate-200 border border-slate-700">${prod.Categorie}</span>
             ${isPoste(prod) ? '<span class="tag bg-slate-800 text-sky-200 border border-slate-700">Poste</span>' : ""}
             ${isStandardLicence(prod) ? '<span class="tag bg-slate-800 text-amber-200 border border-slate-700">Licence standard</span>' : ""}
-          </div>
+            </div>
         </td>
         <td class="px-4 py-2 text-right">
           <div id="prix-${prod.id}" class="font-semibold text-slate-100">-</div>
@@ -842,19 +848,34 @@ function exportOffer() {
 }
 
 function loadData() {
-  fetch("./data/products.json")
-    .then(res => res.json())
-    .then(data => {
-      produits = data.map((p, idx) => ({
-        ...p,
-        id: idx,
-        // harmonise numeric fields
-        Achat: Number(p.Achat) || 0,
-        AT: Number(p.AT) || 0,
-        Loc36: Number(p.Loc36) || 0,
-        Loc60: Number(p.Loc60) || 0,
-        Install: Number(p.Install) || 0
-      }));
+  Promise.all([
+    fetch("./data/products.json").then(res => res.json()),
+    fetch("./productsite.json").then(res => res.json()).catch(() => ({}))
+  ])
+    .then(([data, sites]) => {
+      const urlMap = {};
+      Object.values(sites || {}).forEach(list => {
+        (list || []).forEach(item => {
+          if (item && item.name && item.url) {
+            urlMap[normalizeName(item.name)] = item.url;
+          }
+        });
+      });
+
+      produits = data.map((p, idx) => {
+        const url = urlMap[normalizeName(p.Produit)];
+        return {
+          ...p,
+          id: idx,
+          url,
+          // harmonise numeric fields
+          Achat: Number(p.Achat) || 0,
+          AT: Number(p.AT) || 0,
+          Loc36: Number(p.Loc36) || 0,
+          Loc60: Number(p.Loc60) || 0,
+          Install: Number(p.Install) || 0
+        };
+      });
       document.getElementById("sync-date").innerText = new Date().toLocaleString("fr-FR");
       document.getElementById("config").classList.remove("hidden");
       renderGroupedTable();
