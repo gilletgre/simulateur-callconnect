@@ -770,7 +770,7 @@ function exportOffer() {
       totalLine = monthly * qty;
       if (upfront > 0) {
         achatUnique = upfront * qty;
-        installLine = installBase;
+        installLine = upfront * qty + installBase;
       }
 
       const unit = monthly > 0 ? monthly : upfront;
