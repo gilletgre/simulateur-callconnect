@@ -60,7 +60,6 @@
       "supplier": "Yealink",
       "url": "https://www.yealink.com/en/product-detail/usb-wired-headset-uh36"
     },
-
     {
       "name": "Plantronics Head extens cable QD-QD 3m",
       "brand": "Poly (Plantronics)",
@@ -109,7 +108,6 @@
       "supplier": "HP / Poly",
       "url": "https://www.hp.com/us-en/poly.html"
     },
-
     {
       "name": "Plantronics Voyager 5200 UC",
       "brand": "Poly (Plantronics)",
@@ -134,7 +132,6 @@
       "supplier": "HP / Poly",
       "url": "https://www.hp.com/us-en/poly.html"
     },
-
     {
       "name": "Plantronics SupraPlus monaural VT",
       "brand": "Poly (Plantronics)",
@@ -159,7 +156,6 @@
       "supplier": "HP / Poly",
       "url": "https://www.hp.com/us-en/poly.html"
     },
-
     {
       "name": "Plantronics USB headset Blackwire C315",
       "brand": "Poly (Plantronics)",
@@ -184,14 +180,12 @@
       "supplier": "HP / Poly",
       "url": "https://www.hp.com/us-en/poly.html"
     },
-
     {
       "name": "Plantronics wireless USB headset Savi W440",
       "brand": "Poly (Plantronics)",
       "supplier": "HP / Poly",
       "url": "https://www.hp.com/us-en/poly.html"
     },
-
     {
       "name": "Plantronics EncorePro HW520",
       "brand": "Poly (Plantronics)",
@@ -216,14 +210,12 @@
       "supplier": "HP / Poly",
       "url": "https://www.hp.com/us-en/poly.html"
     },
-
     {
       "name": "Plantronics Headset Cable Yealink",
       "brand": "Poly (Plantronics)",
       "supplier": "HP / Poly",
       "url": "https://www.hp.com/us-en/poly.html"
     },
-
     {
       "name": "Plantronics Blackwire 5210, USB-A",
       "brand": "Poly (Plantronics)",
@@ -243,7 +235,6 @@
       "url": "https://www.hp.com/us-en/poly.html"
     }
   ],
-
   "dect": [
     {
       "name": "Call Connect IP Dect Handset W59R",
@@ -342,13 +333,12 @@
       "url": "https://www.yealink.com/en/product-detail/dect-phone-w59r"
     }
   ],
-
   "devices": [
     {
       "name": "Call Connect IP Phone 8861",
       "brand": "Cisco",
       "supplier": "Cisco",
-      "url": "https://www.cisco.com/c/en/us/products/collaboration-endpoints/ip-phone-8800-series/models-listing.html"
+      "url": "https://www.cisco.com/c/en/us/products/collaboration-endpoints/unified-ip-phone-8800-series/index.html?dtid=osscdc000283&linkclickid=srch"
     },
     {
       "name": "Call Connect IP Phone T33G",
