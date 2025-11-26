@@ -400,9 +400,8 @@ function computePrice(prod, regimeOverride) {
     if (locEligible && locPrice > 0) {
       monthlyBase = locPrice;
     } else {
-      // non louable en régime loc : pas de chiffrage
-      monthlyBase = 0;
-      upfrontBase = 0;
+      // non louable ou pas de tarif loc : on facture l'achat si dispo
+      upfrontBase = achat;
     }
   }
 
