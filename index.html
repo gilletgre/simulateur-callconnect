@@ -360,8 +360,8 @@ function isAlwaysLocation(prod) {
 
 function pickLocationPrice(prod, regimeOverride) {
   const r = regimeOverride || regime;
-  if (r === "loc36") return prod.Loc36 || 0;
-  if (r === "loc60") return prod.Loc60 || 0;
+  if (r === "loc36") return prod.Loc36 || prod.Loc60 || 0;
+  if (r === "loc60") return prod.Loc60 || prod.Loc36 || 0;
   // pour les régimes achat/achat_at ou les catégories toujours en loc : on prend la loc si dispo (36 sinon 60)
   return prod.Loc36 || prod.Loc60 || 0;
 }
