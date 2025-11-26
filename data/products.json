@@ -1951,5 +1951,23 @@
     "Loc36": 0.0,
     "Loc60": 0.0,
     "Install": 15.0
+  },
+  {
+    "Produit": "Call Connect Services Advanced",
+    "Categorie": "Services",
+    "Achat": 0.0,
+    "AT": 0.0,
+    "Loc36": 0.0,
+    "Loc60": 9.0,
+    "Install": 0.0
+  },
+  {
+    "Produit": "Call Connect Device Services",
+    "Categorie": "Services",
+    "Achat": 0.0,
+    "AT": 0.0,
+    "Loc36": 0.0,
+    "Loc60": 0.5,
+    "Install": 0.0
   }
 ]

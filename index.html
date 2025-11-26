@@ -413,9 +413,10 @@ function computePrice(prod, regimeOverride) {
     if (locEligible && locPrice > 0) {
       monthlyBase = locPrice;
     } else {
-      // non louable ou pas de tarif loc : on facture l'achat en one-shot
-      upfrontBase = achat;
-      fallbackToAchat = achat > 0;
+      // non louable ou pas de tarif loc : legacy ne facture pas
+      monthlyBase = 0;
+      upfrontBase = 0;
+      fallbackToAchat = false;
     }
   }
 
@@ -568,7 +569,9 @@ function updateTotals() {
     const unitDisplay = monthly > 0 ? monthly : upfront;
     const totalLine = monthly * qty;
     const upfrontTotal = upfront * qty;
-    const installLine = billing === "upfront" ? upfrontTotal + installBase : 0;
+    const installLine = (regime === "achat" || regime === "achat_at")
+      ? installBase + upfrontTotal
+      : (billing === "upfront" ? upfrontTotal + installBase : 0);
 
     if (isPoste(prod)) deviceQty += qty;
     totalMensuel += totalLine;
