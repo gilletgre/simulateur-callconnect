@@ -372,36 +372,37 @@ function computePrice(prod, regimeOverride) {
   const locPrice = pickLocationPrice(prod, regimeToUse);
   const alwaysLocation = isAlwaysLocation(prod);
   const locEligible = isLocEligible(prod);
-  const achatOnly = isAchatOnly(prod);
 
   let monthly = 0;
   let upfront = 0;
   let monthlyBase = 0;
   let upfrontBase = 0;
 
+  const isLocRegime = regimeToUse === "loc36" || regimeToUse === "loc60";
+
   if (alwaysLocation) {
     monthlyBase = locPrice;
   } else if (regimeToUse === "achat") {
-    if (achat > 0 || achatOnly || !locPrice) {
+    if (achat > 0) {
       upfrontBase = achat;
-    } else {
-      // Produit uniquement louable : reste mensuel même en achat
+    } else if (locEligible && locPrice > 0) {
       monthlyBase = locPrice;
     }
   } else if (regimeToUse === "achat_at") {
-    upfrontBase = achat;
-    monthlyBase = at;
-    if (!achat && locEligible && locPrice && !achatOnly) {
-      // Pas achetable : on bascule en loc
+    if (achat > 0) upfrontBase = achat;
+    if (at > 0) monthlyBase = at;
+    if (!achat && locEligible && locPrice > 0) {
+      // Produit non achetable mais louable
       monthlyBase = locPrice;
       upfrontBase = 0;
     }
-  } else {
-    // Régimes location : loc si possible, sinon achat en one-shot
-    if (locEligible && locPrice) {
+  } else if (isLocRegime) {
+    if (locEligible && locPrice > 0) {
       monthlyBase = locPrice;
     } else {
-      upfrontBase = achat;
+      // non louable en régime loc : pas de chiffrage
+      monthlyBase = 0;
+      upfrontBase = 0;
     }
   }
 
@@ -546,26 +547,12 @@ function updateTotals() {
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
     const alt = ["achat", "achat_at", "loc36", "loc60"]
       .map(r => {
-        const locEligible = isLocEligible(prod);
-        if (r === "loc36") {
-          const val = locEligible ? (prod.Loc36 || 0) : 0;
-          if (!val) return null;
-          return `Loc36: ${euros(val)}`;
-        }
-        if (r === "loc60") {
-          const val = locEligible ? (prod.Loc60 || 0) : 0;
-          if (!val) return null;
-          return `Loc60: ${euros(val)}`;
-        }
-        if (r === "achat") {
-          const val = prod.Achat || 0;
-          if (!val) return null;
-          return `Achat: ${euros(val)}`;
-        }
-        // achat_at => afficher l'AT mensuel
-        const val = prod.AT || 0;
+        const { monthly: m, upfront: u } = computePrice(prod, r);
+        const val = m > 0 ? m : u;
         if (!val) return null;
-        return `AT: ${euros(val)}`;
+        const label = r === "achat" ? "Achat" : r === "achat_at" ? "AT" : r === "loc36" ? "Loc36" : "Loc60";
+        const tag = r === regime ? " (sélectionné)" : "";
+        return `${label}: ${euros(val)}${tag}`;
       })
       .filter(Boolean)
       .join(" · ");
