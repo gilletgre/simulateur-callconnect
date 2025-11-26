@@ -639,10 +639,10 @@ function updateTotals() {
   });
 
   if (regime === "loc36" || regime === "loc60") {
-    totalMensuel += 6.0;
+    totalMensuel += 9.0;
     const devCost = deviceQty * 0.5;
     totalMensuel += devCost;
-    document.getElementById("cc-services").innerText = `Start 6,00 € + devices ${devCost > 0 ? euros(devCost) : "-"}`;
+    document.getElementById("cc-services").innerText = `Start 9,00 € + devices ${devCost > 0 ? euros(devCost) : "-"}`;
   } else {
     document.getElementById("cc-services").innerText = "Pas de frais mensuels supplémentaires";
   }
@@ -821,7 +821,7 @@ function exportOffer() {
 
   let totalMensuel = rows.reduce((s, r) => s + r.totalLine, 0);
   if (regime === "loc36" || regime === "loc60") {
-    totalMensuel += 6 + deviceQty * 0.5;
+    totalMensuel += 9 + deviceQty * 0.5;
   }
   const totalInstall = rows.reduce((s, r) => s + r.installLine, 0);
   const totalAchatUnique = rows.reduce((s, r) => s + (r.achatUnique || 0), 0);
