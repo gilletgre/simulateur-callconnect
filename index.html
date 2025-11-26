@@ -377,6 +377,8 @@ function computePrice(prod, regimeOverride) {
   let upfront = 0;
   let monthlyBase = 0;
   let upfrontBase = 0;
+  let billing = "upfront"; // "monthly" ou "upfront"
+  let fallbackToAchat = false; // vrai si régime loc mais pas de loc => achat
 
   const isLocRegime = regimeToUse === "loc36" || regimeToUse === "loc60";
 
@@ -400,8 +402,9 @@ function computePrice(prod, regimeOverride) {
     if (locEligible && locPrice > 0) {
       monthlyBase = locPrice;
     } else {
-      // non louable ou pas de tarif loc : on facture l'achat si dispo
+      // non louable ou pas de tarif loc : on facture l'achat en one-shot
       upfrontBase = achat;
+      fallbackToAchat = achat > 0;
     }
   }
 
@@ -410,8 +413,9 @@ function computePrice(prod, regimeOverride) {
   if (isStandardLicence(prod)) discount = Math.max(discount, remiseLicences);
   monthly = monthlyBase * (1 - discount / 100);
   upfront = upfrontBase * (1 - discount / 100);
+  billing = monthly > 0 ? "monthly" : "upfront";
 
-  return { monthly, upfront, monthlyBase, upfrontBase, discount };
+  return { monthly, upfront, monthlyBase, upfrontBase, discount, billing, fallbackToAchat };
 }
 
 function renderGroupedTable() {
@@ -535,31 +539,32 @@ function updateTotals() {
     if (!qtyInput || !row) return;
     const qty = parseInt(qtyInput.value || "0");
     quantities[prod.id] = qty;
-    const { monthly, upfront, monthlyBase, upfrontBase, discount } = computePrice(prod);
+    const { monthly, upfront, monthlyBase, upfrontBase, discount, billing, fallbackToAchat } = computePrice(prod);
     const installBase = (prod.Install || 0) * qty;
     const unitDisplay = monthly > 0 ? monthly : upfront;
     const totalLine = monthly * qty;
     const upfrontTotal = upfront * qty;
-    const installLine = upfront > 0 ? upfrontTotal + installBase : 0;
+    const installLine = billing === "upfront" ? upfrontTotal + installBase : 0;
 
     if (isPoste(prod)) deviceQty += qty;
     totalMensuel += totalLine;
     totalUpfrontOnly += upfrontTotal;
-    totalInstallBase += upfront > 0 ? installBase : 0;
+    totalInstallBase += billing === "upfront" ? installBase : 0;
     totalRemises += (monthlyBase - monthly) * qty + (upfrontBase - upfront) * qty;
     if (qty > 0) lignesActives += 1;
 
-    document.getElementById(`prix-${prod.id}`).innerText = unitDisplay > 0 ? euros(unitDisplay) : "Non chiffré";
+    const suffix = billing === "monthly" ? "/mois" : "(achat" + (fallbackToAchat ? " - pas de loc" : "") + ")";
+    document.getElementById(`prix-${prod.id}`).innerText = unitDisplay > 0 ? `${euros(unitDisplay)} ${suffix}` : "Non chiffré";
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
     const alt = ["achat", "achat_at", "loc36", "loc60"]
       .map(r => {
-        const { monthly: m, upfront: u } = computePrice(prod, r);
+        const { monthly: m, upfront: u, billing: b, fallbackToAchat: fb } = computePrice(prod, r);
         const label = r === "achat" ? "Achat" : r === "achat_at" ? "AT" : r === "loc36" ? "Loc36" : "Loc60";
-        const isMonthly = m > 0;
+        const isMonthly = b === "monthly";
         const val = isMonthly ? m : u;
         if (!val) return null;
         const tag = r === regime ? " (sélectionné)" : "";
-        const mode = isMonthly ? "/mois" : "(achat)";
+        const mode = isMonthly ? "/mois" : `(achat${fb ? " - pas de loc" : ""})`;
         return `${label}: ${euros(val)} ${mode}${tag}`;
       })
       .filter(Boolean)
