@@ -462,6 +462,13 @@ function renderGroupedTable() {
 
 function renderFamilyTable(family, list) {
   const slug = slugify(family);
+  const regimeLabel = (r) => {
+    if (r === "achat") return "Achat";
+    if (r === "achat_at") return "AT";
+    if (r === "loc36") return "Loc36";
+    if (r === "loc60") return "Loc60";
+    return r;
+  };
   const rows = list.map(prod => {
     const qty = quantities[prod.id] || 0;
     const achatOnly = isAchatOnly(prod);
@@ -498,7 +505,7 @@ function renderFamilyTable(family, list) {
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
           <th class="text-left px-4 py-2">Produit</th>
-          <th class="px-4 py-2 col-price">${list.some(p => isAchatOnly(p)) ? "Prix (achat)" : `Prix (${regime})`}</th>
+          <th class="px-4 py-2 col-price">Prix (${regimeLabel(regime)})</th>
           <th class="px-4 py-2 col-qte">Qté</th>
           <th class="px-4 py-2 col-total">Total mensuel</th>
           <th class="px-4 py-2 col-install">Installation</th>
@@ -547,11 +554,13 @@ function updateTotals() {
     const alt = ["achat", "achat_at", "loc36", "loc60"]
       .map(r => {
         const { monthly: m, upfront: u } = computePrice(prod, r);
-        const val = m > 0 ? m : u;
-        if (!val) return null;
         const label = r === "achat" ? "Achat" : r === "achat_at" ? "AT" : r === "loc36" ? "Loc36" : "Loc60";
+        const isMonthly = m > 0;
+        const val = isMonthly ? m : u;
+        if (!val) return null;
         const tag = r === regime ? " (sélectionné)" : "";
-        return `${label}: ${euros(val)}${tag}`;
+        const mode = isMonthly ? "/mois" : "(achat)";
+        return `${label}: ${euros(val)} ${mode}${tag}`;
       })
       .filter(Boolean)
       .join(" · ");
