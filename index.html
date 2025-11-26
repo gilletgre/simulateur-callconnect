@@ -76,14 +76,6 @@
               </div>
             </div>
             <div class="space-y-2">
-              <label class="text-sm text-slate-400">Remise postes (%)</label>
-              <input id="remise-postes" type="number" min="0" max="100" class="w-40 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
-            </div>
-            <div class="space-y-2">
-              <label class="text-sm text-slate-400">Remise licences standard (%)</label>
-              <input id="remise-licences" type="number" min="0" max="100" class="w-52 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
-            </div>
-            <div class="space-y-2">
               <label class="text-sm text-slate-400">Remise installation (%)</label>
               <input id="remise-install" type="number" min="0" max="100" class="w-40 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-right" value="0">
             </div>
@@ -148,8 +140,6 @@ let quantities = {};
 let perItemDiscounts = {};
 let regime = "loc60";
 let remiseInstall = 0;
-let remisePostes = 0;
-let remiseLicences = 0;
 let onlySelected = false;
 let hideEmpty = false;
 let searchTerm = "";
@@ -426,8 +416,6 @@ function computePrice(prod, regimeOverride) {
   let discount = 0;
   const itemDiscount = perItemDiscounts[prod.id] || 0;
   discount = Math.max(discount, itemDiscount);
-  if (isPoste(prod)) discount = Math.max(discount, remisePostes);
-  if (isStandardLicence(prod)) discount = Math.max(discount, remiseLicences);
   monthly = monthlyBase * (1 - discount / 100);
   upfront = upfrontBase * (1 - discount / 100);
   billing = monthly > 0 ? "monthly" : "upfront";
@@ -529,7 +517,8 @@ function renderFamilyTable(family, list) {
   }).join("");
 
   return `
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto">
+    <table class="w-full text-sm min-w-[1100px]">
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
           <th class="text-left px-4 py-2">Produit</th>
@@ -545,6 +534,7 @@ function renderFamilyTable(family, list) {
         ${rows}
       </tbody>
     </table>
+    </div>
   `;
 }
 function updateTotals() {
@@ -683,14 +673,6 @@ function bindControls() {
     remiseInstall = parseFloat(e.target.value || "0");
     updateTotals();
   });
-  document.getElementById("remise-postes").addEventListener("input", (e) => {
-    remisePostes = parseFloat(e.target.value || "0");
-    updateTotals();
-  });
-  document.getElementById("remise-licences").addEventListener("input", (e) => {
-    remiseLicences = parseFloat(e.target.value || "0");
-    updateTotals();
-  });
   document.getElementById("toggle-selected").addEventListener("change", (e) => {
     onlySelected = e.target.checked;
     updateTotals();
@@ -807,7 +789,7 @@ function exportOffer() {
       .badge { display:inline-block; padding:2px 6px; border-radius:10px; background:#e2e8f0; margin-left:6px; font-size:11px;}
     </style></head><body>
     <h1>Offre Call Connect</h1>
-    <p>Régime : ${regime} | Remise postes ${remisePostes}% | Remise licences ${remiseLicences}% | Remise installation ${remiseInstall}%</p>
+    <p>Régime : ${regime} | Remise installation ${remiseInstall}%</p>
   `;
 
   Object.keys(byFam).sort().forEach(fam => {
