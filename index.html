@@ -69,8 +69,7 @@
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button class="regime-btn" data-regime="achat">Achat</button>
                 <button class="regime-btn" data-regime="achat_at">Achat + AT</button>
-                <button class="regime-btn" data-regime="loc36">Location 36 mois</button>
-                <button class="regime-btn" data-regime="loc60">Location 60 mois</button>
+                <button class="regime-btn" data-regime="loc60">Location 5 ans</button>
               </div>
             </div>
             <div class="space-y-2">
@@ -139,7 +138,7 @@
 <script>
 let produits = [];
 let quantities = {};
-let regime = "loc36";
+let regime = "loc60";
 let remiseInstall = 0;
 let remisePostes = 0;
 let remiseLicences = 0;
@@ -360,7 +359,6 @@ function isAlwaysLocation(prod) {
 
 function pickLocationPrice(prod, regimeOverride) {
   const r = regimeOverride || regime;
-  if (r === "loc36") return prod.Loc36 || prod.Loc60 || 0;
   if (r === "loc60") return prod.Loc60 || prod.Loc36 || 0;
   // pour les régimes achat/achat_at ou les catégories toujours en loc : on prend la loc si dispo (36 sinon 60)
   return prod.Loc36 || prod.Loc60 || 0;
@@ -381,7 +379,7 @@ function computePrice(prod, regimeOverride) {
   let billing = "upfront"; // "monthly" ou "upfront"
   let fallbackToAchat = false; // vrai si régime loc mais pas de loc => achat
 
-  const isLocRegime = regimeToUse === "loc36" || regimeToUse === "loc60";
+  const isLocRegime = regimeToUse === "loc60";
 
   if (alwaysLocation) {
     monthlyBase = locPrice;
@@ -557,7 +555,7 @@ function updateTotals() {
     const suffix = billing === "monthly" ? "/mois" : "(achat" + (fallbackToAchat ? " - pas de loc" : "") + ")";
     document.getElementById(`prix-${prod.id}`).innerText = unitDisplay > 0 ? `${euros(unitDisplay)} ${suffix}` : "Non chiffré";
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
-    const alt = ["achat", "achat_at", "loc36", "loc60"]
+    const alt = ["achat", "achat_at", "loc60"]
       .map(r => {
         const { monthly: m, upfront: u, billing: b, fallbackToAchat: fb } = computePrice(prod, r);
         const label = r === "achat" ? "Achat" : r === "achat_at" ? "AT" : r === "loc36" ? "Loc36" : "Loc60";
