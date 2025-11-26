@@ -546,11 +546,26 @@ function updateTotals() {
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
     const alt = ["achat", "achat_at", "loc36", "loc60"]
       .map(r => {
-        const { monthly: m, upfront: u } = computePrice(prod, r);
-        const val = m > 0 ? m : u;
+        const locEligible = isLocEligible(prod);
+        if (r === "loc36") {
+          const val = locEligible ? (prod.Loc36 || 0) : 0;
+          if (!val) return null;
+          return `Loc36: ${euros(val)}`;
+        }
+        if (r === "loc60") {
+          const val = locEligible ? (prod.Loc60 || 0) : 0;
+          if (!val) return null;
+          return `Loc60: ${euros(val)}`;
+        }
+        if (r === "achat") {
+          const val = prod.Achat || 0;
+          if (!val) return null;
+          return `Achat: ${euros(val)}`;
+        }
+        // achat_at => afficher l'AT mensuel
+        const val = prod.AT || 0;
         if (!val) return null;
-        const label = r === "achat" ? "Achat" : r === "achat_at" ? "AT" : r === "loc36" ? "Loc36" : "Loc60";
-        return `${label}: ${euros(val)}${r === regime ? " (sélectionné)" : ""}`;
+        return `AT: ${euros(val)}`;
       })
       .filter(Boolean)
       .join(" · ");
