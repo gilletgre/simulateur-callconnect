@@ -231,6 +231,7 @@ const familyMap = {
   "DECT Accessoires": "DECT & Accessoires",
   "Headset": "Audio & Casques",
   "Headset Accessoires": "Audio & Casques",
+  "Autres Headset": "Audio & Casques",
   "Licences utilisateurs": "Licences",
   "Voicemail 10 individual Licences": "Licences",
   "Voicemail for IVR/Group Licences": "Licences",
@@ -305,6 +306,7 @@ function getFamily(prod) {
   if (name.includes("softphone installation")) return "Licences";
   if (name.includes("switch") || name.includes("poe")) return "Switch";
   if (name.includes("doorphone") || name.includes("portier")) return "Parlophones";
+  if (name.includes("savi") || name.includes("poly") || name.includes("plantronics")) return "Audio & Casques";
 
   const mapped = familyMap[prod.Categorie];
   if (mapped) return mapped;
