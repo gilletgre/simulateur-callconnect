@@ -365,42 +365,51 @@ function pickLocationPrice(prod) {
 }
 
 function computePrice(prod) {
-  let base = 0;
-  const achatOnly = isAchatOnly(prod);
-  const locEligible = isLocEligible(prod);
-  const alwaysLocation = isAlwaysLocation(prod);
   const achat = prod.Achat || 0;
-  const achatAT = achat + (prod.AT || 0);
+  const at = prod.AT || 0;
   const locPrice = pickLocationPrice(prod);
-  let billing = "one_time"; // one_time = frais uniques, monthly = récurrent
+  const alwaysLocation = isAlwaysLocation(prod);
+  const locEligible = isLocEligible(prod);
+  const achatOnly = isAchatOnly(prod);
+
+  let monthly = 0;
+  let upfront = 0;
+  let monthlyBase = 0;
+  let upfrontBase = 0;
 
   if (alwaysLocation) {
-    base = locPrice;
-    billing = "monthly";
-  } else if (regime === "achat_at") {
-    base = achatAT;
+    monthlyBase = locPrice;
   } else if (regime === "achat") {
-    base = achat;
-    if (!base && locPrice && !achatOnly) {
-      // Produit non achetable mais disponible en location : on reste en mensuel
-      base = locPrice;
-      billing = "monthly";
+    if (achat > 0 || achatOnly || !locPrice) {
+      upfrontBase = achat;
+    } else {
+      // Produit uniquement louable : reste mensuel même en achat
+      monthlyBase = locPrice;
+    }
+  } else if (regime === "achat_at") {
+    upfrontBase = achat;
+    monthlyBase = at;
+    if (!achat && locEligible && locPrice && !achatOnly) {
+      // Pas achetable : on bascule en loc
+      monthlyBase = locPrice;
+      upfrontBase = 0;
     }
   } else {
-    // Régimes location : loc si disponible, sinon on facture l'achat en une fois
+    // Régimes location : loc si possible, sinon achat en one-shot
     if (locEligible && locPrice) {
-      base = locPrice;
-      billing = "monthly";
+      monthlyBase = locPrice;
     } else {
-      base = achat;
+      upfrontBase = achat;
     }
   }
 
   let discount = 0;
   if (isPoste(prod)) discount = Math.max(discount, remisePostes);
   if (isStandardLicence(prod)) discount = Math.max(discount, remiseLicences);
-  const price = base * (1 - discount / 100);
-  return { price, base, discount, billing };
+  monthly = monthlyBase * (1 - discount / 100);
+  upfront = upfrontBase * (1 - discount / 100);
+
+  return { monthly, upfront, monthlyBase, upfrontBase, discount };
 }
 
 function renderGroupedTable() {
@@ -500,7 +509,8 @@ function renderFamilyTable(family, list) {
 }
 function updateTotals() {
   let totalMensuel = 0;
-  let totalInstall = 0;
+  let totalInstallBase = 0;
+  let totalUpfrontOnly = 0;
   let deviceQty = 0;
   let totalRemises = 0;
   let lignesActives = 0;
@@ -515,36 +525,30 @@ function updateTotals() {
     if (!qtyInput || !row) return;
     const qty = parseInt(qtyInput.value || "0");
     quantities[prod.id] = qty;
-    const { price, base, discount, billing } = computePrice(prod);
+    const { monthly, upfront, monthlyBase, upfrontBase, discount } = computePrice(prod);
     const installBase = (prod.Install || 0) * qty;
-    let totalLine = 0;
-    let installLine = 0;
-
-    if (billing === "monthly") {
-      totalLine = price * qty;
-      installLine = 0;
-    } else {
-      // Achat (avec ou sans AT) ou produit non louable en régime loc
-      totalLine = 0;
-      installLine = (price > 0 ? price * qty : 0) + installBase;
-    }
+    const unitDisplay = monthly > 0 ? monthly : upfront;
+    const totalLine = monthly * qty;
+    const upfrontTotal = upfront * qty;
+    const installLine = upfront > 0 ? upfrontTotal + installBase : 0;
 
     if (isPoste(prod)) deviceQty += qty;
     totalMensuel += totalLine;
-    totalInstall += installLine;
-    totalRemises += (base - price) * qty;
+    totalUpfrontOnly += upfrontTotal;
+    totalInstallBase += upfront > 0 ? installBase : 0;
+    totalRemises += (monthlyBase - monthly) * qty + (upfrontBase - upfront) * qty;
     if (qty > 0) lignesActives += 1;
 
-    document.getElementById(`prix-${prod.id}`).innerText = price > 0 ? euros(price) : "Non chiffré";
+    document.getElementById(`prix-${prod.id}`).innerText = unitDisplay > 0 ? euros(unitDisplay) : "Non chiffré";
     document.getElementById(`discount-${prod.id}`).innerText = discount > 0 ? `-${discount}% appliqué` : "";
     document.getElementById(`total-${prod.id}`).innerText = euros(totalLine);
     document.getElementById(`install-${prod.id}`).innerText = euros(installLine);
 
     const matchesSearch = prod.Produit.toLowerCase().includes(searchTerm.toLowerCase());
-    const visible = matchesSearch && ((!onlySelected || qty > 0 || searchActive) && (!hideEmpty || price > 0 || searchActive)) && !isHiddenByName(prod);
+    const visible = matchesSearch && ((!onlySelected || qty > 0 || searchActive) && (!hideEmpty || unitDisplay > 0 || searchActive)) && !isHiddenByName(prod);
     if (!visible) lignesMasquees += 1;
     row.style.display = visible ? "" : "none";
-    row.classList.toggle("opacity-50", qty === 0 || price === 0);
+    row.classList.toggle("opacity-50", qty === 0 || unitDisplay === 0);
     row.classList.toggle("row-active", qty > 0);
 
     if (visible) {
@@ -588,11 +592,12 @@ function updateTotals() {
     document.getElementById("cc-services").innerText = "Pas de frais mensuels supplémentaires";
   }
 
-  const remiseInstallValue = totalInstall * (remiseInstall / 100);
-  const installNet = totalInstall - remiseInstallValue;
+  const remiseInstallValue = totalInstallBase * (remiseInstall / 100);
+  const installNet = totalInstallBase - remiseInstallValue;
+  const totalUniques = installNet + totalUpfrontOnly;
 
   document.getElementById("total-mensuel").innerText = euros(totalMensuel);
-  document.getElementById("total-installation").innerText = euros(installNet);
+  document.getElementById("total-installation").innerText = euros(totalUniques);
   document.getElementById("remise-value").innerText = `Remise installation : ${euros(remiseInstallValue)}`;
   document.getElementById("total-remises").innerText = euros(totalRemises);
   document.getElementById("ligne-comptee").innerText = lignesActives;
@@ -688,20 +693,21 @@ function exportOffer() {
     .map(prod => {
       const qty = quantities[prod.id] || 0;
       if (qty <= 0 || isHiddenByName(prod)) return null;
-      const { price, discount, billing } = computePrice(prod);
+      const { monthly, upfront, discount } = computePrice(prod);
       let totalLine = 0;
       let installLine = 0;
       let achatUnique = 0;
       const installBase = (prod.Install || 0) * qty;
 
-      if (billing === "monthly") {
-        totalLine = price * qty;
-      } else {
-        achatUnique = price * qty;
+      totalLine = monthly * qty;
+      if (upfront > 0) {
+        achatUnique = upfront * qty;
         installLine = installBase;
       }
 
-      return { ...prod, qty, price, discount, totalLine, installLine, achatUnique };
+      const unit = monthly > 0 ? monthly : upfront;
+
+      return { ...prod, qty, price: unit, discount, totalLine, installLine, achatUnique };
     })
     .filter(Boolean);
 
