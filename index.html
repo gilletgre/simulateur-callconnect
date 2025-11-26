@@ -13,6 +13,7 @@
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     .tag { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 999px; }
     .col-price { width: 280px; text-align: right; }
+    .col-upfront { width: 200px; text-align: right; }
     .col-qte, .col-total, .col-install { width: 200px; text-align: right; }
     .col-install { width: 140px; }
     .row-active { background: linear-gradient(90deg, rgba(14,165,233,0.12), rgba(14,165,233,0)); }
@@ -508,6 +509,9 @@ function renderFamilyTable(family, list) {
         <td class="px-4 py-2 text-right col-total">
           <div id="total-${prod.id}" class="font-semibold text-slate-100">-</div>
         </td>
+        <td class="px-4 py-2 text-right col-upfront">
+          <div id="upfront-${prod.id}" class="font-semibold text-slate-100">-</div>
+        </td>
         <td class="px-4 py-2 text-right col-install">
           <div id="install-${prod.id}" class="font-semibold text-slate-100">-</div>
         </td>
@@ -523,6 +527,7 @@ function renderFamilyTable(family, list) {
           <th class="px-4 py-2 col-price">Prix (${regimeLabel(regime)})</th>
           <th class="px-4 py-2 col-qte">Qté</th>
           <th class="px-4 py-2 col-total">Total mensuel</th>
+          <th class="px-4 py-2 col-upfront">Achat (frais uniques)</th>
           <th class="px-4 py-2 col-install">Installation</th>
         </tr>
       </thead>
@@ -583,6 +588,7 @@ function updateTotals() {
     const altNode = document.getElementById(`alt-${prod.id}`);
     if (altNode) altNode.innerText = alt;
     document.getElementById(`total-${prod.id}`).innerText = euros(totalLine);
+    document.getElementById(`upfront-${prod.id}`).innerText = euros(upfrontTotal);
     document.getElementById(`install-${prod.id}`).innerText = euros(installLine);
 
     const matchesSearch = prod.Produit.toLowerCase().includes(searchTerm.toLowerCase());
