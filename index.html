@@ -12,8 +12,8 @@
     }
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     .tag { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 999px; }
-    .col-price, .col-qte, .col-total, .col-install { width: 140px; text-align: right; }
-    .col-install { width: 120px; }
+    .col-price, .col-qte, .col-total, .col-install { width: 200px; text-align: right; }
+    .col-install { width: 140px; }
     .row-active { background: linear-gradient(90deg, rgba(14,165,233,0.12), rgba(14,165,233,0)); }
   </style>
 </head>
@@ -111,7 +111,11 @@
               <span class="text-xl font-semibold text-white" id="total-mensuel">0,00 €</span>
             </div>
           <div class="flex items-center justify-between">
-            <span class="text-slate-300 text-sm">Total frais uniques</span>
+            <span class="text-slate-300 text-sm">Total achat</span>
+            <span class="text-xl font-semibold text-white" id="total-achat">0,00 €</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300 text-sm">Total installation</span>
             <span class="text-xl font-semibold text-white" id="total-installation">0,00 €</span>
           </div>
           <div class="flex items-center justify-between">
@@ -296,16 +300,17 @@ function slugify(text) {
 }
 
 function getFamily(prod) {
+  const name = prod.Produit.toLowerCase();
+  if (name.includes("softphone installation")) return "Licences";
+  if (name.includes("switch") || name.includes("poe")) return "Switch";
+  if (name.includes("doorphone") || name.includes("portier")) return "Parlophones";
+
   const mapped = familyMap[prod.Categorie];
   if (mapped) return mapped;
-  const name = prod.Produit.toLowerCase();
   if (name.includes("w53h") || name.includes("dect")) return "DECT & Accessoires";
   if (name.includes("phone") || name.includes("t4") || name.includes("t5")) return "Endpoints";
   if (name.includes("headset") || name.includes("casque") || name.includes("poly") || name.includes("plantronics")) return "Audio & Casques";
-  if (name.includes("switch") || name.includes("poe")) return "Switch";
-  if (name.includes("doorphone") || name.includes("portier")) return "Parlophones";
   if (name.includes("voicemail")) return "Licences";
-  if (name.includes("softphone installation")) return "Services";
   return "Autres";
 }
 
@@ -623,10 +628,10 @@ function updateTotals() {
 
   const remiseInstallValue = totalInstallBase * (remiseInstall / 100);
   const installNet = totalInstallBase - remiseInstallValue;
-  const totalUniques = installNet + totalUpfrontOnly;
 
   document.getElementById("total-mensuel").innerText = euros(totalMensuel);
-  document.getElementById("total-installation").innerText = euros(totalUniques);
+  document.getElementById("total-achat").innerText = euros(totalUpfrontOnly);
+  document.getElementById("total-installation").innerText = euros(installNet);
   document.getElementById("remise-value").innerText = `Remise installation : ${euros(remiseInstallValue)}`;
   document.getElementById("total-remises").innerText = euros(totalRemises);
   document.getElementById("ligne-comptee").innerText = lignesActives;
