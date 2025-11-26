@@ -14,9 +14,8 @@
     .tag { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 999px; }
     .col-product { width: 280px; }
     .col-price { width: 280px; text-align: right; }
-    .col-upfront { width: 200px; text-align: right; }
-    .col-discount { width: 140px; text-align: right; }
-    .col-qte, .col-total, .col-install { width: 200px; text-align: right; }
+    .col-discount { width: 140px; text-align: center; }
+    .col-qte, .col-total, .col-upfront, .col-install { width: 140px; text-align: center; }
     .col-install { width: 140px; }
     .row-active { background: linear-gradient(90deg, rgba(14,165,233,0.12), rgba(14,165,233,0)); }
   </style>
@@ -498,19 +497,19 @@ function renderFamilyTable(family, list) {
           <div id="discount-${prod.id}" class="text-xs text-emerald-400"></div>
           <div id="alt-${prod.id}" class="text-[11px] text-slate-500 mt-0.5"></div>
         </td>
-        <td class="px-4 py-2 text-right col-discount">
-          <input type="number" min="0" max="100" value="${perItemDiscounts[prod.id] ?? ""}" placeholder="0" id="disc-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
+        <td class="px-4 py-2 text-center col-discount">
+          <input type="number" min="0" max="100" value="${perItemDiscounts[prod.id] ?? ""}" placeholder="0" id="disc-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center" />
         </td>
-        <td class="px-4 py-2 text-right col-qte">
-          <input type="number" min="0" value="${qty > 0 ? qty : ""}" placeholder="0" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-right" />
+        <td class="px-4 py-2 text-center col-qte">
+          <input type="number" min="0" value="${qty > 0 ? qty : ""}" placeholder="0" id="qty-${prod.id}" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center" />
         </td>
-        <td class="px-4 py-2 text-right col-total">
+        <td class="px-4 py-2 text-center col-total">
           <div id="total-${prod.id}" class="font-semibold text-slate-100">-</div>
         </td>
-        <td class="px-4 py-2 text-right col-upfront">
+        <td class="px-4 py-2 text-center col-upfront">
           <div id="upfront-${prod.id}" class="font-semibold text-slate-100">-</div>
         </td>
-        <td class="px-4 py-2 text-right col-install">
+        <td class="px-4 py-2 text-center col-install">
           <div id="install-${prod.id}" class="font-semibold text-slate-100">-</div>
         </td>
       </tr>
@@ -519,7 +518,7 @@ function renderFamilyTable(family, list) {
 
   return `
     <div class="overflow-x-auto">
-    <table class="w-full text-sm min-w-[1200px]">
+    <table class="w-full text-sm min-w-[1150px]">
       <thead class="bg-slate-900/70 text-slate-300">
         <tr>
           <th class="text-left px-4 py-2 col-product">Produit</th>
