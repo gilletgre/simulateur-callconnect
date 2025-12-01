@@ -412,8 +412,13 @@ function computePrice(prod, regimeOverride) {
   } else if (isLocRegime) {
     if (locEligible && locPrice > 0) {
       monthlyBase = locPrice;
+    } else if (achat > 0) {
+      // Produit achat-only en régime location : facturer en achat
+      upfrontBase = achat;
+      monthlyBase = 0;
+      fallbackToAchat = true;
     } else {
-      // non louable ou pas de tarif loc : legacy ne facture pas
+      // non louable et pas de tarif achat : ne pas facturer
       monthlyBase = 0;
       upfrontBase = 0;
       fallbackToAchat = false;
