@@ -574,14 +574,16 @@ function updateTotals() {
     const unitDisplay = monthly > 0 ? monthly : upfront;
     const totalLine = monthly * qty;
     const upfrontTotal = upfront * qty;
+    // En régime location, les produits achat-only ont fallbackToAchat=true
     const installLine = (regime === "achat" || regime === "achat_at")
       ? installBase + upfrontTotal
-      : (billing === "upfront" ? upfrontTotal + installBase : 0);
+      : (billing === "upfront" || fallbackToAchat ? upfrontTotal + installBase : 0);
 
     if (isPoste(prod)) deviceQty += qty;
     totalMensuel += totalLine;
     totalUpfrontOnly += upfrontTotal;
-    totalInstallBase += billing === "upfront" ? installBase : 0;
+    // Ajouter les frais d'installation pour les produits achat-only en régime location
+    totalInstallBase += (billing === "upfront" || fallbackToAchat) ? installBase : 0;
     totalRemises += (monthlyBase - monthly) * qty + (upfrontBase - upfront) * qty;
     if (qty > 0) lignesActives += 1;
 
