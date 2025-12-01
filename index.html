@@ -755,20 +755,36 @@ function exportOffer() {
       const qty = quantities[prod.id] || 0;
       if (qty <= 0 || isHiddenByName(prod)) return null;
       const { monthly, upfront, discount } = computePrice(prod);
+      const achatOnly = isAchatOnly(prod);
+      const locEligible = isLocEligible(prod);
       let totalLine = 0;
       let installLine = 0;
       let achatUnique = 0;
       const installBase = (prod.Install || 0) * qty;
 
       totalLine = monthly * qty;
-      if (upfront > 0) {
-        achatUnique = upfront * qty;
-        installLine = upfront * qty + installBase;
+      
+      if (regime === "loc60") {
+        // En régime location, les produits achat-only doivent utiliser le prix d'achat
+        if (achatOnly || !locEligible) {
+          totalLine = 0;
+          achatUnique = (prod.Achat || 0) * qty;
+          installLine = installBase;
+        } else if (upfront > 0) {
+          achatUnique = upfront * qty;
+          installLine = installBase;
+        }
+      } else {
+        // Régimes achat/achat_at
+        if (upfront > 0) {
+          achatUnique = upfront * qty;
+          installLine = upfront * qty + installBase;
+        }
       }
 
-      const unit = monthly > 0 ? monthly : upfront;
+      const unit = monthly > 0 ? monthly : (upfront > 0 ? upfront : (prod.Achat || 0));
 
-      return { ...prod, qty, price: unit, discount, totalLine, installLine, achatUnique };
+      return { ...prod, qty, price: unit, discount, totalLine, installLine, achatUnique, achatOnly, locEligible };
     })
     .filter(Boolean);
 
